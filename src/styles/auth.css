@@ -1,0 +1,337 @@
+.oh-auth-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--oh-cream);
+}
+
+@media (min-width: 900px) {
+  .oh-auth-shell {
+    flex-direction: row;
+  }
+}
+
+/* ---------- Brand panel ---------- */
+.oh-brand-panel {
+  background: linear-gradient(160deg, var(--oh-forest) 0%, #0f2621 100%);
+  color: var(--oh-white);
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  min-height: 220px;
+}
+
+@media (min-width: 900px) {
+  .oh-brand-panel {
+    flex: 1;
+    min-height: 100vh;
+  }
+}
+
+.oh-brand-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1.5px solid var(--oh-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.oh-brand-title {
+  font-size: 1.6rem;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.oh-brand-title span {
+  color: var(--oh-gold);
+}
+
+.oh-brand-tagline {
+  color: #d8e4df;
+  margin: 6px 0 18px;
+  font-size: 0.95rem;
+}
+
+.oh-brand-motto {
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+  color: var(--oh-gold);
+  margin: 0;
+}
+
+.oh-brand-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 28px;
+}
+
+.oh-brand-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.oh-brand-footnote {
+  position: static;
+  margin-top: 32px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (min-width: 900px) {
+  .oh-brand-footnote {
+    position: absolute;
+    bottom: 28px;
+  }
+  .oh-brand-panel {
+    position: relative;
+  }
+}
+
+/* ---------- Form panel ---------- */
+.oh-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px 48px;
+}
+
+.oh-auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--oh-white);
+  border-radius: var(--oh-radius-lg);
+  padding: 32px 26px;
+  box-shadow: var(--oh-shadow);
+  border: 1px solid var(--oh-border);
+}
+
+.oh-auth-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--oh-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.oh-auth-heading {
+  text-align: center;
+  font-size: 1.15rem;
+  color: var(--oh-forest);
+  margin-bottom: 4px;
+}
+
+.oh-auth-sub {
+  text-align: center;
+  color: var(--oh-text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 22px;
+}
+
+.oh-field {
+  margin-bottom: 16px;
+}
+
+.oh-field label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--oh-text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.oh-mobile-input {
+  display: flex;
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-sm);
+  overflow: hidden;
+  background: var(--oh-cream);
+}
+
+.oh-mobile-input .oh-code {
+  padding: 12px 14px;
+  color: var(--oh-text);
+  font-weight: 600;
+  border-right: 1.5px solid var(--oh-border);
+  background: var(--oh-white);
+}
+
+.oh-mobile-input input,
+.oh-field input,
+.oh-field select,
+.oh-field textarea {
+  border: none;
+  background: transparent;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  width: 100%;
+  outline: none;
+  color: var(--oh-text);
+}
+
+.oh-field input,
+.oh-field select,
+.oh-field textarea {
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-sm);
+  background: var(--oh-cream);
+}
+
+.oh-field input:focus,
+.oh-field select:focus,
+.oh-field textarea:focus,
+.oh-mobile-input:focus-within {
+  border-color: var(--oh-forest);
+}
+
+.oh-otp-input input {
+  text-align: center;
+  letter-spacing: 10px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.oh-btn-primary {
+  width: 100%;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  border: none;
+  border-radius: var(--oh-radius-sm);
+  padding: 13px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.15s ease;
+}
+
+.oh-btn-primary:hover:not(:disabled) {
+  background: var(--oh-forest-light);
+}
+
+.oh-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.oh-btn-secondary {
+  width: 100%;
+  background: var(--oh-white);
+  color: var(--oh-forest);
+  border: 1.5px solid var(--oh-forest);
+  border-radius: var(--oh-radius-sm);
+  padding: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.oh-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  color: var(--oh-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.oh-divider::before,
+.oh-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--oh-border);
+}
+
+.oh-auth-footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--oh-text-muted);
+  margin-top: 18px;
+}
+
+.oh-auth-footer a,
+.oh-link {
+  color: var(--oh-forest);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: inherit;
+}
+
+.oh-error {
+  background: var(--oh-red-bg);
+  color: var(--oh-red);
+  border-radius: var(--oh-radius-sm);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+
+.oh-demo-otp-banner {
+  background: #eef6f0;
+  border: 1px dashed var(--oh-forest);
+  color: var(--oh-forest);
+  border-radius: var(--oh-radius-sm);
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.oh-demo-otp-banner strong {
+  font-size: 1.15rem;
+  letter-spacing: 4px;
+}
+
+.oh-resend-row {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--oh-text-muted);
+  margin-top: 10px;
+}
+
+.oh-user-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.oh-user-type-option {
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-sm);
+  background: var(--oh-cream);
+  padding: 12px 10px;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--oh-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oh-user-type-option.active {
+  border-color: var(--oh-forest);
+  background: #eef6f0;
+  color: var(--oh-forest);
+}
+
+.oh-user-type-option .oh-emoji {
+  font-size: 1.1rem;
+}

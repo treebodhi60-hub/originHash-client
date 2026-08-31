@@ -1,0 +1,85 @@
+:root {
+  /* Core palette — sampled from the OriginHash reference screens */
+  --oh-forest: #163832;       /* deep green: sidebar, primary buttons, header text */
+  --oh-forest-light: #1f4a42;
+  --oh-cream: #fbf3e7;        /* page background */
+  --oh-white: #ffffff;
+  --oh-gold: #c9a464;         /* logo accent, subtle borders */
+  --oh-orange: #f2a65a;       /* Edit button */
+  --oh-orange-dark: #e4924a;
+  --oh-purple: #5b3e85;       /* Add button */
+  --oh-red: #dc2626;          /* Block text / border, blocked badge */
+  --oh-red-bg: #fee2e2;
+
+  --oh-badge-farmer-bg: #dcfce7;
+  --oh-badge-farmer-text: #15803d;
+  --oh-badge-retailer-bg: #dbeafe;
+  --oh-badge-retailer-text: #1d4ed8;
+  --oh-badge-producer-bg: #f3e8ff;
+  --oh-badge-producer-text: #7e22ce;
+  --oh-badge-distributor-bg: #fef3c7;
+  --oh-badge-distributor-text: #b45309;
+  --oh-badge-consumer-bg: #e5e7eb;
+  --oh-badge-consumer-text: #374151;
+
+  --oh-text: #1f2937;
+  --oh-text-muted: #6b7280;
+  --oh-border: #e7ddcc;
+
+  --oh-font-display: 'Poppins', 'Segoe UI', sans-serif;
+  --oh-font-body: 'Inter', 'Segoe UI', sans-serif;
+
+  --oh-radius-sm: 8px;
+  --oh-radius-md: 14px;
+  --oh-radius-lg: 22px;
+
+  --oh-shadow: 0 8px 24px rgba(22, 56, 50, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--oh-font-body);
+  background: var(--oh-cream);
+  color: var(--oh-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--oh-font-display);
+  margin: 0;
+}
+
+button {
+  font-family: var(--oh-font-body);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--oh-font-body);
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--oh-forest);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
