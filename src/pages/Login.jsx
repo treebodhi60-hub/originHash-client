@@ -2,17 +2,26 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import BrandPanel from '../components/BrandPanel.jsx';
-import { sendOtp, clearError } from '../store/authSlice';
+import { sendOtp, adminLogin, clearError } from '../store/authSlice';
 import '../styles/auth.css';
 
 const Login = () => {
+  const [mode, setMode] = useState('user'); // 'user' | 'admin'
   const [mobile, setMobile] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.auth);
 
-  const handleSubmit = async (e) => {
+  const switchMode = (next) => {
+    setMode(next);
+    setLocalError('');
+    dispatch(clearError());
+  };
+
+  const handleUserSubmit = async (e) => {
     e.preventDefault();
     setLocalError('');
     dispatch(clearError());
@@ -25,6 +34,22 @@ const Login = () => {
     const result = await dispatch(sendOtp(mobile));
     if (sendOtp.fulfilled.match(result)) {
       navigate('/verify-otp');
+    }
+  };
+
+  const handleAdminSubmit = async (e) => {
+    e.preventDefault();
+    setLocalError('');
+    dispatch(clearError());
+
+    if (!username.trim() || !password) {
+      setLocalError('Enter your username and password.');
+      return;
+    }
+
+    const result = await dispatch(adminLogin({ username: username.trim(), password }));
+    if (adminLogin.fulfilled.match(result)) {
+      navigate('/admin/users');
     }
   };
 
@@ -44,37 +69,83 @@ const Login = () => {
           <h2 className="oh-auth-heading">Welcome back</h2>
           <p className="oh-auth-sub">Log in to continue verifying products</p>
 
+          <div className="oh-login-mode-tabs">
+            <button
+              type="button"
+              className={`oh-login-mode-tab ${mode === 'user' ? 'active' : ''}`}
+              onClick={() => switchMode('user')}
+            >
+              Customer
+            </button>
+            <button
+              type="button"
+              className={`oh-login-mode-tab ${mode === 'admin' ? 'active' : ''}`}
+              onClick={() => switchMode('admin')}
+            >
+              Admin
+            </button>
+          </div>
+
           {(localError || error) && <div className="oh-error">{localError || error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div className="oh-field">
-              <label htmlFor="mobile">Mobile number</label>
-              <div className="oh-mobile-input">
-                <span className="oh-code">+91</span>
+          {mode === 'user' ? (
+            <form onSubmit={handleUserSubmit}>
+              <div className="oh-field">
+                <label htmlFor="mobile">Mobile number</label>
+                <div className="oh-mobile-input">
+                  <span className="oh-code">+91</span>
+                  <input
+                    id="mobile"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="10-digit number"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  />
+                </div>
+              </div>
+
+              <button className="oh-btn-primary" type="submit" disabled={status === 'loading'}>
+                {status === 'loading' ? 'Sending OTP…' : 'Send OTP'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleAdminSubmit}>
+              <div className="oh-field">
+                <label htmlFor="username">Username</label>
                 <input
-                  id="mobile"
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength={10}
-                  placeholder="10-digit number"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  id="username"
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
                 />
               </div>
-            </div>
+              <div className="oh-field">
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
 
-            <button className="oh-btn-primary" type="submit" disabled={status === 'loading'}>
-              {status === 'loading' ? 'Sending OTP…' : 'Send OTP'}
-            </button>
-          </form>
+              <button className="oh-btn-primary" type="submit" disabled={status === 'loading'}>
+                {status === 'loading' ? 'Logging in…' : 'Log in'}
+              </button>
+            </form>
+          )}
 
-          <div className="oh-divider">New here?</div>
-          <button className="oh-btn-secondary" type="button" onClick={() => navigate('/login')}>
-            Create an account
-          </button>
-          <p className="oh-auth-footer">
-            Registration uses the same mobile + OTP flow — just enter your number above.
-          </p>
+          {mode === 'user' && (
+            <p className="oh-auth-footer">
+              Registration uses the same mobile + OTP flow — just enter your number above.
+            </p>
+          )}
         </div>
       </div>
     </div>

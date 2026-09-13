@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers, toggleBlock, setSearch, setStatusFilter } from '../../store/usersSlice';
+import { fetchAdmins, promoteUser, demoteAdmin, setSearch as setAdminSearch } from '../../store/adminsSlice';
 import UserEditPanel from './UserEditPanel.jsx';
+import AdminEditPanel from './AdminEditPanel.jsx';
 import '../../styles/admin.css';
 
 const exportCsv = (users) => {
@@ -25,12 +27,159 @@ const exportCsv = (users) => {
   URL.revokeObjectURL(url);
 };
 
-const UsersList = () => {
+const PromoteModal = ({ user, onClose }) => {
   const dispatch = useDispatch();
-  const { list, total, active, blocked, search, statusFilter, status } = useSelector(
-    (state) => state.users
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!username.trim() || !password) {
+      setError('Username and password are required.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    setSaving(true);
+    const action = await dispatch(
+      promoteUser({ id: user.id, payload: { username: username.trim(), password, isSuperAdmin } })
+    );
+    setSaving(false);
+    if (action.meta.requestStatus === 'fulfilled') {
+      onClose();
+    } else {
+      setError(action.payload || 'Could not promote user.');
+    }
+  };
+
+  return (
+    <div className="oh-panel-backdrop" onClick={onClose}>
+      <div className="oh-slide-panel" onClick={(e) => e.stopPropagation()}>
+        <button className="oh-panel-close" onClick={onClose} type="button" aria-label="Close">
+          ✕
+        </button>
+        <div className="oh-panel-header">
+          <div className="oh-panel-avatar">{(user.name || '?').charAt(0).toUpperCase()}</div>
+          <div className="oh-panel-name">Promote {user.name || 'user'} to admin</div>
+          <div className="oh-panel-mobile">+91 {user.mobile}</div>
+        </div>
+
+        {error && <div className="oh-error">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="oh-field">
+            <label>Username</label>
+            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" autoFocus />
+          </div>
+          <div className="oh-field">
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+          </div>
+          <label className="oh-checkbox-row">
+            <input type="checkbox" checked={isSuperAdmin} onChange={(e) => setIsSuperAdmin(e.target.checked)} />
+            Grant super-admin access
+          </label>
+
+          <div className="oh-edit-actions" style={{ marginTop: 16 }}>
+            <button className="oh-btn-cancel" type="button" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="oh-btn-save" type="submit" disabled={saving}>
+              {saving ? 'Promoting…' : 'Promote to admin'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
+};
+
+const DemoteMobileModal = ({ admin, onClose }) => {
+  const dispatch = useDispatch();
+  const [mobile, setMobile] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+      setError('Enter a valid 10-digit mobile number.');
+      return;
+    }
+    setSaving(true);
+    const action = await dispatch(demoteAdmin({ id: admin.id, payload: { mobile } }));
+    setSaving(false);
+    if (action.meta.requestStatus === 'fulfilled') {
+      onClose();
+    } else {
+      setError(action.payload || 'Could not demote admin.');
+    }
+  };
+
+  return (
+    <div className="oh-panel-backdrop" onClick={onClose}>
+      <div className="oh-slide-panel" onClick={(e) => e.stopPropagation()}>
+        <button className="oh-panel-close" onClick={onClose} type="button" aria-label="Close">
+          ✕
+        </button>
+        <div className="oh-panel-header">
+          <div className="oh-panel-avatar">{(admin.name || '?').charAt(0).toUpperCase()}</div>
+          <div className="oh-panel-name">Demote {admin.name || admin.username} to normal user</div>
+        </div>
+
+        <p className="oh-qr-folder-hint" style={{ marginBottom: 14 }}>
+          This admin has no mobile number on file. A normal user logs in with mobile + OTP, so enter one to
+          continue.
+        </p>
+
+        {error && <div className="oh-error">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="oh-field">
+            <label>Mobile number</label>
+            <div className="oh-mobile-input">
+              <span className="oh-code">+91</span>
+              <input
+                maxLength={10}
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="10-digit number"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <div className="oh-edit-actions" style={{ marginTop: 16 }}>
+            <button className="oh-btn-cancel" type="button" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="oh-btn-save" type="submit" disabled={saving}>
+              {saving ? 'Demoting…' : 'Demote to normal user'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const NormalUsersTab = ({ showPromote }) => {
+  const dispatch = useDispatch();
+  const { list, total, active, blocked, search, statusFilter, status } = useSelector((state) => state.users);
   const [panel, setPanel] = useState(null); // { mode: 'add' | 'edit', user? }
+  const [promoting, setPromoting] = useState(null); // user being promoted
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -105,6 +254,11 @@ const UsersList = () => {
                 </div>
               </div>
               <div className="oh-user-actions">
+                {showPromote && (
+                  <button className="oh-btn-cancel" onClick={() => setPromoting(user)}>
+                    Promote
+                  </button>
+                )}
                 <button className="oh-btn-edit" onClick={() => setPanel({ mode: 'edit', user })}>
                   Edit
                 </button>
@@ -120,9 +274,120 @@ const UsersList = () => {
         })}
       </div>
 
-      {panel && (
-        <UserEditPanel mode={panel.mode} user={panel.user} onClose={() => setPanel(null)} />
-      )}
+      {panel && <UserEditPanel mode={panel.mode} user={panel.user} onClose={() => setPanel(null)} />}
+      {promoting && <PromoteModal user={promoting} onClose={() => setPromoting(null)} />}
+    </div>
+  );
+};
+
+const AdminsTab = () => {
+  const dispatch = useDispatch();
+  const { list, search, status } = useSelector((state) => state.admins);
+  const currentUser = useSelector((state) => state.auth.user);
+  const [panel, setPanel] = useState(null); // { mode: 'add' | 'edit', admin? }
+  const [demoteTarget, setDemoteTarget] = useState(null); // admin needing a mobile number
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      dispatch(fetchAdmins({ search }));
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [dispatch, search]);
+
+  const handleDemote = (admin) => {
+    if (!admin.mobile) {
+      setDemoteTarget(admin);
+      return;
+    }
+    if (!window.confirm(`Demote ${admin.name || admin.username} to a normal user?`)) return;
+    dispatch(demoteAdmin({ id: admin.id }));
+  };
+
+  return (
+    <div>
+      <div className="oh-admin-header">
+        <div>
+          <h1 className="oh-admin-title">Admins</h1>
+          <p className="oh-admin-subtitle">{list.length} admin accounts</p>
+        </div>
+        <div className="oh-header-actions">
+          <button className="oh-btn-add" onClick={() => setPanel({ mode: 'add' })}>
+            + Add admin
+          </button>
+        </div>
+      </div>
+
+      <div className="oh-toolbar">
+        <input
+          className="oh-search-input"
+          placeholder="Search name, username or email"
+          value={search}
+          onChange={(e) => dispatch(setAdminSearch(e.target.value))}
+        />
+      </div>
+
+      <div className="oh-users-panel">
+        {status === 'loading' && list.length === 0 && <div className="oh-empty-state">Loading admins…</div>}
+        {status !== 'loading' && list.length === 0 && <div className="oh-empty-state">No admins match this search.</div>}
+
+        {list.map((admin) => {
+          const initial = (admin.name || admin.username || '?').charAt(0).toUpperCase();
+          const isSelf = admin.id === currentUser?.id;
+          return (
+            <div className="oh-user-row" key={admin.id}>
+              <div className="oh-user-avatar">{initial}</div>
+              <div className="oh-user-info">
+                <div className="oh-user-name-row">
+                  <span className="oh-user-name">{admin.name || admin.username}</span>
+                  {admin.isSuperAdmin && <span className="oh-badge producer">Super-admin</span>}
+                  {admin.isBlocked && <span className="oh-badge blocked">Blocked</span>}
+                  {isSelf && <span className="oh-badge consumer">You</span>}
+                </div>
+                <div className="oh-user-meta">
+                  @{admin.username} {admin.email ? `· ${admin.email}` : ''}
+                </div>
+              </div>
+              <div className="oh-user-actions">
+                {!isSelf && (
+                  <button className="oh-btn-cancel" onClick={() => handleDemote(admin)}>
+                    Demote
+                  </button>
+                )}
+                <button className="oh-btn-edit" onClick={() => setPanel({ mode: 'edit', admin })}>
+                  Edit
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {panel && <AdminEditPanel mode={panel.mode} admin={panel.admin} onClose={() => setPanel(null)} />}
+      {demoteTarget && <DemoteMobileModal admin={demoteTarget} onClose={() => setDemoteTarget(null)} />}
+    </div>
+  );
+};
+
+const UsersList = () => {
+  const currentUser = useSelector((state) => state.auth.user);
+  const [tab, setTab] = useState('users');
+
+  if (!currentUser?.isSuperAdmin) {
+    return <NormalUsersTab showPromote={false} />;
+  }
+
+  return (
+    <div>
+      <div className="oh-tabs">
+        <button type="button" className={`oh-tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
+          Users
+        </button>
+        <button type="button" className={`oh-tab ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>
+          Admins
+        </button>
+      </div>
+
+      {tab === 'users' ? <NormalUsersTab showPromote /> : <AdminsTab />}
     </div>
   );
 };

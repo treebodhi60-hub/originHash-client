@@ -361,6 +361,20 @@
   background: transparent;
 }
 
+.oh-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--oh-text);
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.oh-checkbox-row input {
+  width: auto;
+}
+
 .oh-edit-actions {
   display: flex;
   gap: 10px;
@@ -384,4 +398,616 @@
   border-radius: var(--oh-radius-sm);
   padding: 11px;
   font-weight: 600;
+}
+
+/* ---------- Image stock ---------- */
+.oh-back-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--oh-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.oh-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  border-bottom: 1.5px solid var(--oh-border);
+}
+
+.oh-tab {
+  background: none;
+  border: none;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--oh-text-muted);
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+}
+
+.oh-tab.active {
+  color: var(--oh-forest);
+  border-bottom-color: var(--oh-forest);
+}
+
+.oh-folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.oh-folder-card {
+  background: var(--oh-white);
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  box-shadow: var(--oh-shadow);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  min-height: 120px;
+}
+
+.oh-folder-name {
+  font-weight: 700;
+  color: var(--oh-text);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.oh-folder-count {
+  color: var(--oh-text-muted);
+  font-size: 0.78rem;
+}
+
+.oh-folder-card-new {
+  justify-content: center;
+  color: var(--oh-forest);
+  border-style: dashed;
+  border-width: 2px;
+  box-shadow: none;
+  background: transparent;
+}
+
+.oh-folder-new-icon {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.oh-folder-card-form {
+  gap: 10px;
+}
+
+.oh-folder-card-form input {
+  width: 100%;
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-sm);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.oh-folder-form-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.oh-folder-form-actions button {
+  flex: 1;
+  padding: 7px;
+  font-size: 0.78rem;
+}
+
+.oh-folder-error {
+  color: var(--oh-red);
+  font-size: 0.72rem;
+}
+
+.oh-dropzone {
+  border: 2px dashed var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  background: var(--oh-white);
+  padding: 36px 20px;
+  text-align: center;
+}
+
+.oh-dropzone.active {
+  border-color: var(--oh-forest);
+  background: #f1f7f4;
+}
+
+.oh-dropzone-icon {
+  font-size: 1.6rem;
+  color: var(--oh-text-muted);
+  margin-bottom: 6px;
+}
+
+.oh-dropzone-title {
+  font-weight: 700;
+  color: var(--oh-text);
+  margin-bottom: 4px;
+}
+
+.oh-dropzone-subtitle {
+  color: var(--oh-text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+}
+
+.oh-dropzone-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.oh-dropzone-actions button {
+  flex: none;
+  padding: 10px 20px;
+}
+
+.oh-dropzone-notices {
+  margin-top: 12px;
+  color: var(--oh-red);
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.oh-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.oh-image-card {
+  position: relative;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  box-shadow: var(--oh-shadow);
+  overflow: hidden;
+}
+
+.oh-image-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--oh-cream);
+  border: none;
+  padding: 0;
+  display: block;
+}
+
+.oh-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.oh-image-thumb-btn {
+  cursor: zoom-in;
+}
+
+.oh-image-thumb .oh-image-status {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  margin-top: 0;
+}
+
+.oh-badge.available {
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+}
+
+.oh-image-view-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(15, 30, 26, 0.55);
+  color: var(--oh-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.oh-image-meta {
+  padding: 10px 12px 4px;
+}
+
+.oh-image-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--oh-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oh-image-sub {
+  color: var(--oh-text-muted);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.oh-image-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.oh-image-actions-row .oh-btn-block,
+.oh-image-actions-row .oh-btn-unblock {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+}
+
+.oh-image-delete-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--oh-radius-sm);
+  border: 1.5px solid var(--oh-border);
+  background: var(--oh-white);
+  font-size: 0.85rem;
+}
+
+/* ---------- Image lightbox ---------- */
+.oh-panel-backdrop.oh-lightbox-backdrop {
+  align-items: center;
+  justify-content: center;
+}
+
+.oh-lightbox-content {
+  position: relative;
+  max-width: min(90vw, 720px);
+  max-height: 90vh;
+  background: var(--oh-white);
+  border-radius: var(--oh-radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.oh-lightbox-content img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+  background: var(--oh-cream);
+}
+
+.oh-lightbox-meta {
+  padding: 14px 18px;
+}
+
+.oh-panel-close.oh-lightbox-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 1;
+  background: rgba(15, 30, 26, 0.55);
+  color: var(--oh-white);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  float: none;
+}
+
+/* ---------- QR sticker generator ---------- */
+.oh-qr-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .oh-qr-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.oh-qr-form {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  box-shadow: var(--oh-shadow);
+  padding: 22px;
+}
+
+.oh-qr-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+
+.oh-field-span2 {
+  grid-column: 1 / -1;
+}
+
+.oh-qr-folder-hint {
+  color: var(--oh-text-muted);
+  font-size: 0.78rem;
+  margin-top: 6px;
+}
+
+.oh-btn-generate {
+  width: 100%;
+  margin-top: 22px;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  border: none;
+  border-radius: var(--oh-radius-sm);
+  padding: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.oh-btn-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.oh-sticker-preview-wrap {
+  position: sticky;
+  top: 20px;
+}
+
+.oh-sticker-preview-label {
+  text-align: center;
+  color: var(--oh-text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.oh-sticker-card {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  overflow: hidden;
+  box-shadow: var(--oh-shadow);
+}
+
+.oh-sticker-header {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  padding: 10px 14px;
+}
+
+.oh-sticker-producer {
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+}
+
+.oh-sticker-batchline {
+  color: var(--oh-gold);
+  font-size: 0.68rem;
+  margin-top: 2px;
+}
+
+.oh-sticker-product {
+  text-align: center;
+  font-weight: 700;
+  color: var(--oh-forest);
+  font-size: 0.88rem;
+  margin-top: 10px;
+}
+
+.oh-sticker-variant {
+  text-align: center;
+  color: var(--oh-text-muted);
+  font-size: 0.72rem;
+  margin-top: 2px;
+}
+
+.oh-sticker-body {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.oh-sticker-body.horizontal {
+  flex-direction: column;
+}
+
+.oh-sticker-image-box,
+.oh-sticker-qr-box {
+  flex: 1;
+  aspect-ratio: 1 / 1;
+  border: 1.5px solid var(--oh-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oh-sticker-image-box {
+  background: var(--oh-cream);
+}
+
+.oh-sticker-qr-box {
+  background: var(--oh-white);
+  padding: 8px;
+}
+
+.oh-sticker-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px 12px;
+  color: var(--oh-text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* ---------- QR generation success ---------- */
+.oh-qr-success {
+  max-width: 420px;
+  margin: 40px auto;
+  text-align: center;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  box-shadow: var(--oh-shadow);
+  padding: 36px 28px;
+}
+
+.oh-qr-success-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.oh-qr-success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.oh-qr-success-note {
+  color: var(--oh-text-muted);
+  font-size: 0.78rem;
+  margin-top: 18px;
+}
+
+/* ---------- QR generated history ---------- */
+.oh-qr-batch-group {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  box-shadow: var(--oh-shadow);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.oh-qr-batch-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.oh-qr-code-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.oh-qr-code-chip {
+  flex-shrink: 0;
+  width: 84px;
+  text-align: center;
+}
+
+.oh-qr-code-chip img {
+  width: 84px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--oh-radius-sm);
+  border: 1px solid var(--oh-border);
+  display: block;
+}
+
+.oh-qr-code-chip span {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--oh-text-muted);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- PDF download loading state ---------- */
+.oh-download-btn-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.oh-download-btn-wrap button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.oh-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--oh-white);
+  border-radius: 50%;
+  animation: oh-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes oh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.oh-download-error {
+  color: var(--oh-red);
+  font-size: 0.72rem;
+}
+
+/* ---------- Dashboard stat tiles ---------- */
+.oh-stat-section {
+  margin-bottom: 28px;
+}
+
+.oh-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.oh-stat-tile {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  box-shadow: var(--oh-shadow);
+  padding: 18px;
+}
+
+.oh-stat-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--oh-forest);
+  line-height: 1.1;
+}
+
+.oh-stat-label {
+  color: var(--oh-text-muted);
+  font-size: 0.82rem;
+  margin-top: 6px;
 }

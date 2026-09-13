@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api/axios';
+import { promoteUser, demoteAdmin } from './adminsSlice';
 
 const initialState = {
   list: [],
@@ -98,6 +99,18 @@ const usersSlice = createSlice({
         if (idx !== -1) state.list[idx] = action.payload;
         state.blocked = state.list.filter((u) => u.isBlocked).length;
         state.active = state.list.length - state.blocked;
+      })
+      .addCase(promoteUser.fulfilled, (state, action) => {
+        state.list = state.list.filter((u) => u.id !== action.payload.id);
+        state.total = Math.max(0, state.total - 1);
+        state.active = state.list.filter((u) => !u.isBlocked).length;
+      })
+      .addCase(demoteAdmin.fulfilled, (state, action) => {
+        if (!state.list.some((u) => u.id === action.payload.id)) {
+          state.list.unshift(action.payload);
+          state.total += 1;
+          state.active = state.list.filter((u) => !u.isBlocked).length;
+        }
       });
   },
 });

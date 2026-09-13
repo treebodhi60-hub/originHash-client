@@ -41,8 +41,10 @@ const AdminProfile = () => {
         <div className="oh-avatar-wrap">
           <div className="oh-avatar">{initial}</div>
           <div className="oh-profile-name">{user.name || 'Admin'}</div>
-          <div className="oh-profile-mobile">+91 {user.mobile}</div>
-          <span className="oh-badge farmer">Admin</span>
+          <div className="oh-profile-mobile">
+            {user.username ? `@${user.username}` : user.mobile ? `+91 ${user.mobile}` : ''}
+          </div>
+          <span className="oh-badge farmer">{user.isSuperAdmin ? 'Super-admin' : 'Admin'}</span>
         </div>
 
         <div className="oh-section-label">Account details</div>
@@ -58,15 +60,29 @@ const AdminProfile = () => {
           <span style={{ color: 'var(--oh-forest)' }}>✎</span>
         </div>
 
-        <div className="oh-detail-row">
-          <div className="oh-detail-left">
-            <div className="oh-detail-icon">📞</div>
-            <div>
-              <div className="oh-detail-label">Mobile number</div>
-              <div className="oh-detail-value">+91 {user.mobile}</div>
+        {user.username && (
+          <div className="oh-detail-row">
+            <div className="oh-detail-left">
+              <div className="oh-detail-icon">🔑</div>
+              <div>
+                <div className="oh-detail-label">Username</div>
+                <div className="oh-detail-value">@{user.username}</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {user.mobile && (
+          <div className="oh-detail-row">
+            <div className="oh-detail-left">
+              <div className="oh-detail-icon">📞</div>
+              <div>
+                <div className="oh-detail-label">Mobile number</div>
+                <div className="oh-detail-value">+91 {user.mobile}</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {editing && (
           <div className="oh-edit-inline">

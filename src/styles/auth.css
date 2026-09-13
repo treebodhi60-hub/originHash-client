@@ -140,6 +140,31 @@
   margin-bottom: 22px;
 }
 
+.oh-login-mode-tabs {
+  display: flex;
+  background: var(--oh-cream);
+  border-radius: var(--oh-radius-sm);
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.oh-login-mode-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 9px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-login-mode-tab.active {
+  background: var(--oh-white);
+  color: var(--oh-forest);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
 .oh-field {
   margin-bottom: 16px;
 }

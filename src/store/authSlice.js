@@ -53,12 +53,27 @@ export const verifyOtp = createAsyncThunk(
   },
 );
 
+export const adminLogin = createAsyncThunk(
+  'auth/adminLogin',
+  async ({ username, password }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post('/auth/admin-login', { username, password });
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Could not log in.');
+    }
+  }
+);
+
 export const fetchMe = createAsyncThunk('auth/fetchMe', async (_, { rejectWithValue }) => {
   try {
     const { data } = await api.get('/users/me');
     return data.user;
   } catch (err) {
-    return rejectWithValue(err.response?.data?.message || 'Could not load profile.');
+    return rejectWithValue({
+      message: err.response?.data?.message || 'Could not load profile.',
+      status: err.response?.status,
+    });
   }
 });
 
@@ -143,9 +158,34 @@ const authSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
+      .addCase(adminLogin.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(adminLogin.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        localStorage.setItem("oh_token", action.payload.token);
+        localStorage.setItem("oh_user", JSON.stringify(action.payload.user));
+      })
+      .addCase(adminLogin.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
       .addCase(fetchMe.fulfilled, (state, action) => {
         state.user = action.payload;
         localStorage.setItem("oh_user", JSON.stringify(action.payload));
+      })
+      .addCase(fetchMe.rejected, (state, action) => {
+        // Only drop the session on a genuine auth failure (expired/invalid token, blocked,
+        // account deleted) — a transient network error shouldn't log the user out.
+        if (action.payload?.status === 401 || action.payload?.status === 403) {
+          state.token = null;
+          state.user = null;
+          localStorage.removeItem("oh_token");
+          localStorage.removeItem("oh_user");
+        }
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.user = action.payload;

@@ -1,0 +1,100 @@
+.ov-page {
+  min-height: 100vh;
+  background: var(--oh-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.ov-message {
+  color: var(--oh-text-muted);
+  font-size: 0.95rem;
+}
+
+.ov-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--oh-white);
+  border-radius: var(--oh-radius-lg);
+  box-shadow: var(--oh-shadow);
+  overflow: hidden;
+  text-align: center;
+}
+
+.ov-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--oh-cream);
+}
+
+.ov-body {
+  padding: 22px 24px 18px;
+}
+
+.ov-producer {
+  color: var(--oh-gold);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ov-title {
+  color: var(--oh-forest);
+  font-size: 1.3rem;
+  margin-top: 4px;
+}
+
+.ov-subtitle {
+  color: var(--oh-text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.ov-meta {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+  color: var(--oh-text-muted);
+  font-size: 0.78rem;
+}
+
+.ov-code {
+  font-weight: 700;
+  color: var(--oh-forest);
+}
+
+.ov-footer {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 10px;
+}
+
+.ov-error-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--oh-red-bg);
+  color: var(--oh-red);
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 26px auto 10px;
+}
+
+.ov-card .ov-title,
+.ov-card .ov-subtitle {
+  padding: 0 20px;
+}
+
+.ov-card:has(.ov-error-icon) {
+  padding-bottom: 26px;
+}
