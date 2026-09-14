@@ -32,6 +32,14 @@
   }
 }
 
+@media (max-width: 899px) {
+  .oh-brand-panel {
+    padding: 14px 32px 8px;
+    min-height: 0;
+    gap: 3px;
+  }
+}
+
 .oh-brand-badge {
   width: 64px;
   height: 64px;
@@ -41,6 +49,19 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 14px;
+}
+
+@media (max-width: 899px) {
+  .oh-brand-badge {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 2px;
+  }
+
+  .oh-brand-badge svg {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .oh-brand-title {
@@ -59,6 +80,13 @@
   font-size: 0.95rem;
 }
 
+@media (max-width: 899px) {
+  .oh-brand-tagline {
+    margin: 2px 0 6px;
+    font-size: 0.85rem;
+  }
+}
+
 .oh-brand-motto {
   letter-spacing: 3px;
   font-size: 0.75rem;
@@ -70,6 +98,12 @@
   display: flex;
   gap: 6px;
   margin-top: 28px;
+}
+
+@media (max-width: 899px) {
+  .oh-brand-dots {
+    margin-top: 4px;
+  }
 }
 
 .oh-brand-dots span {
@@ -84,6 +118,12 @@
   margin-top: 32px;
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 899px) {
+  .oh-brand-footnote {
+    margin-top: 4px;
+  }
 }
 
 @media (min-width: 900px) {
@@ -107,8 +147,7 @@
 
 @media (max-width: 899px) {
   .oh-form-panel {
-    justify-content: flex-start;
-    padding-top: 8px;
+    padding: 12px 20px 24px;
   }
 }
 

@@ -591,6 +591,29 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.oh-image-thumb img.loaded {
+  opacity: 1;
+}
+
+.oh-image-thumb-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oh-thumb-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--oh-border);
+  border-top-color: var(--oh-forest);
+  border-radius: 50%;
+  animation: oh-spin 0.7s linear infinite;
 }
 
 .oh-image-thumb-btn {

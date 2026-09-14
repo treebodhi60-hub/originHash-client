@@ -91,6 +91,7 @@ const FolderCard = ({ folder, onOpen }) => (
 const ImageCard = ({ image, showFolder, onDelete, onToggleBlock, onView, canModerate }) => {
   const [deleting, setDeleting] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${image.fileName}"? This cannot be undone.`)) return;
@@ -108,7 +109,19 @@ const ImageCard = ({ image, showFolder, onDelete, onToggleBlock, onView, canMode
   return (
     <div className="oh-image-card">
       <button type="button" className="oh-image-thumb oh-image-thumb-btn" onClick={() => onView(image)} title="View image">
-        <img src={image.url} alt={image.fileName} loading="lazy" />
+        {!imgLoaded && (
+          <div className="oh-image-thumb-loading">
+            <span className="oh-thumb-spinner" />
+          </div>
+        )}
+        <img
+          src={image.url}
+          alt={image.fileName}
+          loading="lazy"
+          className={imgLoaded ? 'loaded' : ''}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgLoaded(true)}
+        />
         <span className={`oh-badge oh-image-status ${image.isBlocked ? 'blocked' : 'available'}`}>
           {image.isBlocked ? 'Blocked' : 'Available'}
         </span>
