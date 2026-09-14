@@ -105,6 +105,13 @@
   padding: 28px 20px 48px;
 }
 
+@media (max-width: 899px) {
+  .oh-form-panel {
+    justify-content: flex-start;
+    padding-top: 8px;
+  }
+}
+
 .oh-auth-card {
   width: 100%;
   max-width: 380px;

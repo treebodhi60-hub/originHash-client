@@ -26,12 +26,32 @@ const icons = {
       <path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
+  images: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="2" />
+      <circle cx="9" cy="9.5" r="1.6" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M5 16.5l4.5-4.5 3 3 2-2L20 17" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  ),
+  qr: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect x="3.5" y="3.5" width="6" height="6" fill="currentColor" />
+      <rect x="14.5" y="3.5" width="6" height="6" fill="currentColor" />
+      <rect x="3.5" y="14.5" width="6" height="6" fill="currentColor" />
+      <rect x="15" y="15" width="2" height="2" fill="currentColor" />
+      <rect x="19" y="15" width="2" height="2" fill="currentColor" />
+      <rect x="15" y="19" width="2" height="2" fill="currentColor" />
+      <rect x="19" y="19" width="2" height="2" fill="currentColor" />
+    </svg>
+  ),
 };
 
 const items = [
   { to: '/home', label: 'Home', icon: 'home' },
   { to: '/home?tab=scan', label: 'Scan', icon: 'scan', disabled: true },
   { to: '/home?tab=history', label: 'History', icon: 'history', disabled: true },
+  { to: '/images', label: 'Images', icon: 'images' },
+  { to: '/qr-stickers', label: 'QR', icon: 'qr' },
   { to: '/profile', label: 'Profile', icon: 'profile' },
 ];
 

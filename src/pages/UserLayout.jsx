@@ -1,4 +1,7 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import BottomNav from "../components/BottomNav.jsx";
+import { logout } from "../store/authSlice";
 import "../styles/admin.css";
 import "../styles/app-shell.css";
 
@@ -8,7 +11,16 @@ const SidebarIcon = ({ children }) => (
   </svg>
 );
 
-const UserLayout = () => (
+const UserLayout = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login", { replace: true });
+  };
+
+  return (
   <div className="oh-admin-shell oh-user-shell">
     <aside className="oh-sidebar oh-user-sidebar">
       <div className="oh-sidebar-logo">
@@ -134,10 +146,60 @@ const UserLayout = () => (
       </div>
     </aside>
 
-    <main className="oh-admin-main oh-user-main">
-      <Outlet />
-    </main>
+    <div className="oh-user-content-col">
+      <header className="oh-mobile-topbar">
+        <div className="oh-mobile-topbar-brand">
+          <span className="oh-mobile-topbar-logo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 2c-2.2 0-4 1.8-4 4v1H7a1 1 0 0 0 0 2h1v2H7a1 1 0 0 0 0 2h1v1c0 2.2 1.8 4 4 4s4-1.8 4-4v-1h1a1 1 0 1 0 0-2h-1V9h1a1 1 0 1 0 0-2h-1V6c0-2.2-1.8-4-4-4Z"
+                fill="var(--oh-gold)"
+              />
+            </svg>
+          </span>
+          OriginHash
+        </div>
+        <button
+          type="button"
+          className="oh-mobile-topbar-logout"
+          onClick={handleLogout}
+          aria-label="Log out"
+          title="Log out"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M16 17l5-5-5-5"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M21 12H9"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <main className="oh-admin-main oh-user-main">
+        <Outlet />
+      </main>
+    </div>
+
+    <BottomNav />
   </div>
-);
+  );
+};
 
 export default UserLayout;

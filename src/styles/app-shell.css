@@ -7,7 +7,7 @@
 
 .oh-mobile-content {
   flex: 1;
-  padding: 20px 16px 100px;
+  padding: 20px 16px 24px;
   max-width: 480px;
   width: 100%;
   margin: 0 auto;
@@ -26,10 +26,10 @@
   left: 0;
   right: 0;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   background: var(--oh-white);
   border-top: 1px solid var(--oh-border);
-  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
   max-width: 480px;
   margin: 0 auto;
   border-radius: 20px 20px 0 0;
@@ -44,16 +44,25 @@
 
 .oh-nav-item {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 0.68rem;
+  gap: 3px;
+  font-size: 0.62rem;
   font-weight: 600;
   color: var(--oh-text-muted);
   text-decoration: none;
-  padding: 6px 14px;
+  padding: 6px 2px;
   border-radius: 12px;
   transition: background 0.15s ease, color 0.15s ease;
+}
+
+.oh-nav-item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .oh-nav-item.active {
@@ -64,6 +73,73 @@
 .oh-nav-item.disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* ---------- Mobile top bar (user shell) ---------- */
+.oh-user-content-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.oh-mobile-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+}
+
+.oh-mobile-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--oh-font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.oh-mobile-topbar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--oh-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oh-mobile-topbar-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--oh-white);
+}
+
+.oh-mobile-topbar-logout:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+@media (min-width: 1024px) {
+  .oh-mobile-topbar {
+    display: none;
+  }
+}
+
+/* Reserve space so the fixed bottom nav never covers page content — mobile only. */
+@media (max-width: 1023.98px) {
+  .oh-user-shell .oh-admin-main {
+    padding-bottom: 110px;
+  }
 }
 
 .oh-page-title {

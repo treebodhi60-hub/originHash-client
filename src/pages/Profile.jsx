@@ -162,7 +162,6 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import BottomNav from "../components/BottomNav.jsx";
 import { updateProfile, logout } from "../store/authSlice";
 import "../styles/app-shell.css";
 
@@ -253,7 +252,6 @@ const Profile = () => {
   const initial = (user.name || user.mobile || "?").charAt(0).toUpperCase();
 
   return (
-    <div className="oh-mobile-shell">
       <div className="oh-mobile-content">
         <div style={{ maxWidth: 420, margin: "0 auto" }}>
           <h1 className="oh-admin-title" style={{ marginBottom: 18 }}>
@@ -388,8 +386,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <BottomNav />
-    </div>
   );
 };
 
