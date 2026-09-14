@@ -399,6 +399,17 @@
   }
 }
 
+/* ---------- Mobile admin sidebar → bottom nav ---------- */
+@media (max-width: 1023.98px) {
+  .oh-sidebar:not(.oh-user-sidebar) {
+    display: none;
+  }
+
+  .oh-admin-shell:not(.oh-user-shell) .oh-admin-main {
+    padding-bottom: 110px;
+  }
+}
+
 /* ---------- Mobile/desktop content swap (below 1024px = phone bottom-nav view) ---------- */
 .oh-only-mobile {
   display: block;
