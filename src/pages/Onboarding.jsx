@@ -43,7 +43,7 @@ const Onboarding = () => {
     const result = await dispatch(updateProfile(fd));
     setSubmitting(false);
     if (updateProfile.fulfilled.match(result)) {
-      navigate('/profile', { replace: true });
+      navigate('/home', { replace: true });
     } else {
       setError(result.payload || 'Could not save your details.');
     }
@@ -51,7 +51,7 @@ const Onboarding = () => {
 
   const handleSkip = async () => {
     await dispatch(skipOnboarding());
-    navigate('/profile', { replace: true });
+    navigate('/home', { replace: true });
   };
 
   return (

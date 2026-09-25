@@ -1,19 +1,24 @@
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+
+// User pages that also exist inside the admin panel, so an admin opening the user link lands on the admin copy.
+const ADMIN_EQUIVALENTS = { '/scan': '/admin/scan' };
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { token, user } = useSelector((state) => state.auth);
+  const location = useLocation();
 
   if (!token || !user) {
     return <Navigate to="/login" replace />;
   }
 
   if (adminOnly && !user.isAdmin) {
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   if (!adminOnly && user.isAdmin) {
-    return <Navigate to="/admin/users" replace />;
+    const adminPath = ADMIN_EQUIVALENTS[location.pathname];
+    return <Navigate to={adminPath ? adminPath + location.search : '/admin/users'} replace />;
   }
 
   return children;

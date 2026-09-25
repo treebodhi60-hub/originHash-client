@@ -123,6 +123,7 @@ const Scan = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const mode = searchParams.get('mode') === 'verify' ? 'verify' : 'record';
+  const homePath = user?.isAdmin ? '/admin/users' : '/home';
 
   const [camera, setCamera] = useState('starting');
   const [mirrored, setMirrored] = useState(false);
@@ -293,7 +294,7 @@ const Scan = () => {
 
   const goBack = () => {
     if (location.key !== 'default') navigate(-1);
-    else navigate('/home');
+    else navigate(homePath);
   };
 
   const setMode = (next) => {
@@ -569,7 +570,7 @@ const Scan = () => {
                   <button ref={scanAgainRef} type="button" className="oh-scan-btn primary" onClick={scanAgain}>
                     Scan another
                   </button>
-                  <Link to="/home" className="oh-scan-btn secondary">
+                  <Link to={homePath} className="oh-scan-btn secondary">
                     Back to home
                   </Link>
                 </div>

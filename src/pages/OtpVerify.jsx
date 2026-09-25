@@ -35,7 +35,7 @@ const OtpVerify = () => {
       } else if (!user.profileCompleted) {
         navigate('/onboarding', { replace: true });
       } else {
-        navigate('/profile', { replace: true });
+        navigate('/home', { replace: true });
       }
     }
   }, [token, user, navigate]);

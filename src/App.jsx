@@ -33,7 +33,7 @@ function App() {
         path="/login"
         element={
           token && user ? (
-            <Navigate to={user.isAdmin ? "/admin/users" : "/profile"} replace />
+            <Navigate to={user.isAdmin ? "/admin/users" : "/home"} replace />
           ) : (
             <Login />
           )
@@ -78,13 +78,14 @@ function App() {
         <Route path="admins" element={<Navigate to="/admin/users" replace />} />
         <Route path="images" element={<ImageStock />} />
         <Route path="qr-stickers" element={<QrStickers />} />
+        <Route path="scan" element={<Scan />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route index element={<Navigate to="users" replace />} />
       </Route>
 
       <Route
         path="*"
-        element={<Navigate to={token ? "/profile" : "/login"} replace />}
+        element={<Navigate to={token ? "/home" : "/login"} replace />}
       />
     </Routes>
   );

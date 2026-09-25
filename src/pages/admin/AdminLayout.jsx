@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import AdminBottomNav from '../../components/AdminBottomNav.jsx';
 import { logout } from '../../store/authSlice';
@@ -14,6 +14,9 @@ const SidebarIcon = ({ children }) => (
 const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  // The scanner shows the OriginHash logo itself, so the phone top bar would double it up.
+  const showMobileTopbar = pathname !== '/admin/scan';
 
   const handleLogout = () => {
     dispatch(logout());
@@ -39,6 +42,22 @@ const AdminLayout = () => {
         >
           <SidebarIcon>
             <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" stroke="currentColor" strokeWidth="1.6" />
+          </SidebarIcon>
+        </NavLink>
+
+        <NavLink
+          to="/admin/scan"
+          className={({ isActive }) => `oh-sidebar-item ${isActive ? 'active' : ''}`}
+          title="Scan QR code"
+        >
+          <SidebarIcon>
+            <path
+              d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <path d="M4 12h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </SidebarIcon>
         </NavLink>
 
@@ -108,6 +127,7 @@ const AdminLayout = () => {
       </aside>
 
       <div className="oh-user-content-col">
+        {showMobileTopbar && (
         <header className="oh-mobile-topbar">
           <div className="oh-mobile-topbar-brand">
             <span className="oh-mobile-topbar-logo">
@@ -152,6 +172,7 @@ const AdminLayout = () => {
             </svg>
           </button>
         </header>
+        )}
 
         <main className="oh-admin-main">
           <Outlet />

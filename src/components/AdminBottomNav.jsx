@@ -33,6 +33,12 @@ const icons = {
       <rect x="19" y="19" width="2" height="2" fill="currentColor" />
     </svg>
   ),
+  scan: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M4 12h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  ),
   profile: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
@@ -47,6 +53,7 @@ const icons = {
 
 const items = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { to: '/admin/scan', label: 'Scan', icon: 'scan' },
   { to: '/admin/users', label: 'Users', icon: 'users' },
   { to: '/admin/images', label: 'Images', icon: 'images' },
   { to: '/admin/qr-stickers', label: 'QR', icon: 'qr' },
