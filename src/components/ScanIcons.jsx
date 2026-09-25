@@ -78,3 +78,10 @@ export const KeyboardIcon = ({ size }) => (
     <path d="M6.5 10h1M10.5 10h1M14.5 10h1M8 14h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </Svg>
 );
+
+export const HomeIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M3 11 12 4l9 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+  </Svg>
+);

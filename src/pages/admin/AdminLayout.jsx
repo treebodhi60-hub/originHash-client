@@ -15,8 +15,8 @@ const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // The scanner shows the OriginHash logo itself, so the phone top bar would double it up.
-  const showMobileTopbar = pathname !== '/admin/scan';
+  // The scan screens carry their own header, so the phone top bar would double it up.
+  const showMobileTopbar = !pathname.startsWith('/admin/scan');
 
   const handleLogout = () => {
     dispatch(logout());

@@ -15,8 +15,8 @@ const UserLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // Home and Scan show the OriginHash logo themselves, so the phone top bar would double it up.
-  const showMobileTopbar = !["/home", "/scan"].includes(pathname);
+  // Home and the scan screens carry their own header (per the mobile design), so skip the phone top bar there.
+  const showMobileTopbar = pathname !== "/home" && !pathname.startsWith("/scan");
 
   const handleLogout = () => {
     dispatch(logout());

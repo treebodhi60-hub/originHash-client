@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
 import {
-  AlertIcon,
   ArrowLeftIcon,
   CheckIcon,
   CrossIcon,
@@ -15,39 +14,27 @@ import {
   ShieldIcon,
 } from '../components/ScanIcons.jsx';
 import { createQrDecoder, drawToCanvas, extractCode } from '../utils/qr';
-import { recordScan } from '../utils/scanHistory';
 import '../styles/app-shell.css';
 import '../styles/scan.css';
 
 const SCAN_INTERVAL_MS = 180;
 const LIVE_DECODE_PX = 720;
 const PHOTO_DECODE_PX = 1280;
-// After "Scan another" the phone is usually still pointed at the same sticker — ignore
-// that QR briefly so it isn't logged twice by accident.
+// After "Scan again" the phone is usually still pointed at the same sticker — ignore
+// that QR briefly so it doesn't get captured straight back.
 const RESCAN_COOLDOWN_MS = 2500;
+const LOCATION_TIMEOUT_MS = 8000;
 
-const MODES = {
-  record: {
-    label: 'Scan to record',
-    icon: <QrIcon size={18} />,
-    title: 'Scan to record',
-    steps: [
-      'Hold the product QR steady inside the frame.',
-      'We look the code up in OriginHash records.',
-      'The product is added to your scan history.',
-    ],
-  },
-  verify: {
-    label: 'Verify to authenticate',
-    icon: <ShieldIcon size={18} />,
-    title: 'Verify to authenticate',
-    steps: [
-      'Hold the product QR steady inside the frame.',
-      'We check the code against OriginHash records.',
-      'You see whether the product is genuine.',
-    ],
-  },
+const ACTIONS = {
+  record: { label: 'Scan to record', busyLabel: 'Recording…', icon: <QrIcon size={18} /> },
+  verify: { label: 'Verify to authenticate', busyLabel: 'Verifying…', icon: <ShieldIcon size={18} /> },
 };
+
+const HOW_IT_WORKS = [
+  'Hold the product QR steady inside the frame until it is captured.',
+  'Tap Scan to record to log that the product has reached you.',
+  "Or tap Verify to authenticate to check that it's genuine.",
+];
 
 const CAMERA_MESSAGES = {
   idle: null,
@@ -77,39 +64,6 @@ const CAMERA_MESSAGES = {
   },
 };
 
-const RESULTS = {
-  authentic: {
-    tone: 'success',
-    icon: <CheckIcon size={22} />,
-    title: 'Authentic product',
-    body: 'This QR code matches an OriginHash record.',
-  },
-  recorded: {
-    tone: 'success',
-    icon: <CheckIcon size={22} />,
-    title: 'Scan recorded',
-    body: 'This product has been added to your scan history.',
-  },
-  notfound: {
-    tone: 'danger',
-    icon: <CrossIcon size={22} />,
-    title: 'Code not recognised',
-    body: "This code isn't in OriginHash records, so the product may not be genuine.",
-  },
-  invalid: {
-    tone: 'danger',
-    icon: <CrossIcon size={22} />,
-    title: 'Not an OriginHash QR',
-    body: "This QR code doesn't belong to an OriginHash product sticker.",
-  },
-  error: {
-    tone: 'warning',
-    icon: <AlertIcon size={22} />,
-    title: "Couldn't check this code",
-    body: 'Check your internet connection and try again.',
-  },
-};
-
 const cameraErrorState = (err) => {
   if (err?.name === 'NotAllowedError' || err?.name === 'SecurityError') return 'denied';
   if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') return 'nocamera';
@@ -117,12 +71,33 @@ const cameraErrorState = (err) => {
   return 'error';
 };
 
+// Best-effort device location for "recorded at your location". Never blocks recording:
+// a denied, unanswered or slow permission prompt just records without it.
+const getLocation = () =>
+  new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+    const timer = setTimeout(() => resolve(null), LOCATION_TIMEOUT_MS);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        clearTimeout(timer);
+        resolve({ latitude: coords.latitude, longitude: coords.longitude });
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(null);
+      },
+      { enableHighAccuracy: false, timeout: LOCATION_TIMEOUT_MS, maximumAge: 5 * 60 * 1000 }
+    );
+  });
+
 const Scan = () => {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const mode = searchParams.get('mode') === 'verify' ? 'verify' : 'record';
+  const scanPath = user?.isAdmin ? '/admin/scan' : '/scan';
   const homePath = user?.isAdmin ? '/admin/users' : '/home';
 
   const [camera, setCamera] = useState('starting');
@@ -130,8 +105,9 @@ const Scan = () => {
   const [torchSupported, setTorchSupported] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const [frozen, setFrozen] = useState(null); // null | 'camera' | 'photo' — what the snapshot shows
-  const [checking, setChecking] = useState(false);
-  const [result, setResult] = useState(null);
+  const [captured, setCaptured] = useState(null); // { code } once a QR is read; code is null if it isn't ours
+  const [busy, setBusy] = useState(null); // the action being sent: 'record' | 'verify'
+  const [notice, setNotice] = useState('');
   const [photoError, setPhotoError] = useState('');
   const [codeFormOpen, setCodeFormOpen] = useState(false);
   const [manualCode, setManualCode] = useState('');
@@ -140,19 +116,17 @@ const Scan = () => {
   const videoRef = useRef(null);
   const snapshotRef = useRef(null);
   const fileInputRef = useRef(null);
-  const scanAgainRef = useRef(null);
+  const recordBtnRef = useRef(null);
   const workCanvasRef = useRef(null);
   const streamRef = useRef(null);
   const loopRef = useRef(null);
   const decoderRef = useRef(null);
-  // Bumped on every camera start/stop and every code check, so async work from a
-  // superseded session (or an unmounted page) can tell it's stale and bail out.
+  // Bumped on every camera start/stop, so async work from a superseded session
+  // (or an unmounted page) can tell it's stale and bail out.
   const sessionRef = useRef(0);
-  const checkRef = useRef(0);
+  const mountedRef = useRef(true);
   const resumeOnShowRef = useRef(false);
   const repeatGuardRef = useRef({ raw: null, until: 0 });
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
 
   const getDecoder = () => {
     decoderRef.current ??= createQrDecoder().catch((err) => {
@@ -187,7 +161,7 @@ const Scan = () => {
       if (session !== sessionRef.current) return;
       const guard = repeatGuardRef.current;
       if (text && !(text === guard.raw && Date.now() < guard.until)) {
-        handleScanned(text, canvas);
+        handleCaptured(text, canvas);
         return;
       }
     }
@@ -236,36 +210,9 @@ const Scan = () => {
     }
   };
 
-  const finish = (next) => {
-    setChecking(false);
-    setResult(next);
-    // A network failure isn't a verdict on the product, so it stays out of the history.
-    if (next.status === 'error') return;
-    recordScan(user?.id, {
-      mode: modeRef.current,
-      ok: next.status === 'authentic' || next.status === 'recorded',
-      code: next.code || null,
-      productName: next.data?.productName || null,
-      variantSize: next.data?.variantSize || null,
-    });
-  };
-
-  const checkCode = async (code) => {
-    const check = ++checkRef.current;
-    setResult(null);
-    setChecking(true);
-    try {
-      const { data } = await api.get(`/qr-stickers/verify/${encodeURIComponent(code)}`);
-      if (check !== checkRef.current) return;
-      finish({ status: modeRef.current === 'verify' ? 'authentic' : 'recorded', code, data });
-    } catch (err) {
-      if (check !== checkRef.current) return;
-      finish({ status: err.response?.status === 404 ? 'notfound' : 'error', code });
-    }
-  };
-
-  // Freeze the frame the code was read from, turn the camera off, then look the code up.
-  const handleScanned = (raw, sourceCanvas, source = 'camera') => {
+  // Freeze the frame the QR was read from and turn the camera off. Nothing is sent
+  // yet — the user picks "Scan to record" or "Verify to authenticate" next.
+  const handleCaptured = (raw, sourceCanvas, source = 'camera') => {
     const snapshot = snapshotRef.current;
     if (sourceCanvas && snapshot) {
       snapshot.width = sourceCanvas.width;
@@ -276,29 +223,47 @@ const Scan = () => {
     stopCamera();
     navigator.vibrate?.(60);
     repeatGuardRef.current.raw = raw;
-
-    const code = extractCode(raw);
-    if (code) checkCode(code);
-    else finish({ status: 'invalid' });
+    setCaptured({ code: extractCode(raw) });
+    setNotice('');
   };
 
   const scanAgain = () => {
-    checkRef.current += 1;
     repeatGuardRef.current.until = Date.now() + RESCAN_COOLDOWN_MS;
-    setResult(null);
-    setChecking(false);
+    setCaptured(null);
     setFrozen(null);
+    setNotice('');
     setPhotoError('');
     startCamera();
+  };
+
+  const runAction = async (action) => {
+    if (busy) return;
+    if (!captured) {
+      setNotice('Hold a product QR inside the frame first, then choose what to do.');
+      return;
+    }
+    if (action === 'record' && !captured.code) {
+      setNotice("This QR isn't an OriginHash sticker, so it can't be recorded. If a code is printed on the sticker, use Enter code instead.");
+      return;
+    }
+
+    setBusy(action);
+    setNotice('');
+    try {
+      const position = action === 'record' ? await getLocation() : null;
+      const { data } = await api.post('/scans', { code: captured.code, action, ...position });
+      if (!mountedRef.current) return;
+      navigate(`${scanPath}/result`, { state: { action, scan: data.scan, product: data.product } });
+    } catch (err) {
+      if (!mountedRef.current) return;
+      setBusy(null);
+      setNotice(err.response?.data?.message || "Couldn't reach OriginHash. Check your connection and try again.");
+    }
   };
 
   const goBack = () => {
     if (location.key !== 'default') navigate(-1);
     else navigate(homePath);
-  };
-
-  const setMode = (next) => {
-    setSearchParams(next === 'record' ? {} : { mode: next }, { replace: true });
   };
 
   const toggleTorch = async () => {
@@ -337,23 +302,25 @@ const Scan = () => {
       setPhotoError('No QR code found in that photo. Try a closer, sharper shot.');
       return;
     }
-    handleScanned(text, canvas, 'photo');
+    handleCaptured(text, canvas, 'photo');
   };
 
   const submitCode = (e) => {
     e.preventDefault();
     const code = extractCode(manualCode);
     if (!code) {
-      setCodeError('Enter the code printed on the sticker, e.g. DURGA-GHEE-00012.');
+      setCodeError('Enter the code printed on the sticker, e.g. V-HUB-00110.');
       return;
     }
     setCodeError('');
-    setFrozen(null);
     stopCamera();
-    checkCode(code);
+    setFrozen(null);
+    setCaptured({ code });
+    setNotice('');
   };
 
   useEffect(() => {
+    mountedRef.current = true;
     startCamera();
 
     // Release the camera while the tab is hidden and pick it back up on return.
@@ -369,27 +336,21 @@ const Scan = () => {
     document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
+      mountedRef.current = false;
       document.removeEventListener('visibilitychange', onVisibility);
-      checkRef.current += 1;
       stopCamera();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (!result) return undefined;
-    scanAgainRef.current?.focus();
-    const onKey = (e) => {
-      if (e.key === 'Escape') scanAgain();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result]);
+    if (captured?.code) recordBtnRef.current?.focus();
+  }, [captured]);
 
   const cameraMessage = CAMERA_MESSAGES[camera];
-  const resultCopy = result && RESULTS[result.status];
-  const modeCopy = MODES[mode];
+  let hint = 'Place the QR code within the frame to scan';
+  if (captured?.code) hint = 'QR captured — choose what to do with this product';
+  else if (captured) hint = "This QR isn't an OriginHash sticker";
 
   return (
     <div className="oh-scan-page">
@@ -424,7 +385,7 @@ const Scan = () => {
             )}
           </div>
 
-          <p className="oh-scan-hint">Place the QR code within the frame to scan</p>
+          <p className={`oh-scan-hint ${captured ? 'captured' : ''}`}>{hint}</p>
 
           <div className={`oh-scan-viewport ${camera === 'live' || frozen ? 'has-feed' : ''}`}>
             <video
@@ -451,20 +412,31 @@ const Scan = () => {
               </div>
             )}
 
-            {checking && (
-              <div className="oh-scan-overlay">
+            {busy && (
+              <div className="oh-scan-overlay dim">
                 <span className="oh-scan-spinner" />
-                <div className="oh-scan-overlay-title">Checking code…</div>
+                <div className="oh-scan-overlay-title">{ACTIONS[busy].busyLabel}</div>
               </div>
             )}
 
-            {!checking && resultCopy && (
-              <div className="oh-scan-overlay">
-                <span className={`oh-scan-verdict ${resultCopy.tone}`}>{resultCopy.icon}</span>
+            {!busy && captured && (
+              <div className={`oh-scan-captured ${captured.code ? 'ok' : 'bad'}`} role="status">
+                <span className="oh-scan-captured-icon">
+                  {captured.code ? <CheckIcon size={16} /> : <CrossIcon size={16} />}
+                </span>
+                <span className="oh-scan-captured-text">
+                  <span className="oh-scan-captured-label">
+                    {captured.code ? 'QR captured' : 'Not an OriginHash QR'}
+                  </span>
+                  {captured.code && <span className="oh-scan-captured-code">{captured.code}</span>}
+                </span>
+                <button type="button" className="oh-scan-captured-again" onClick={scanAgain}>
+                  Scan again
+                </button>
               </div>
             )}
 
-            {!checking && !result && camera !== 'live' && (
+            {!busy && !captured && camera !== 'live' && (
               <div className="oh-scan-overlay">
                 <span className={`oh-scan-placeholder ${camera === 'starting' ? 'pulse' : ''}`}>
                   <QrIcon size={40} />
@@ -480,7 +452,7 @@ const Scan = () => {
                     )}
                   </>
                 )}
-                {camera === 'idle' && !frozen && (
+                {camera === 'idle' && (
                   <button type="button" className="oh-scan-retry" onClick={scanAgain}>
                     Start camera
                   </button>
@@ -489,94 +461,39 @@ const Scan = () => {
             )}
           </div>
 
-          <div className="oh-scan-modes" role="group" aria-label="What should this scan do?">
-            {Object.entries(MODES).map(([key, m]) => (
+          <div className={`oh-scan-actions ${captured ? 'ready' : ''}`}>
+            {Object.entries(ACTIONS).map(([key, a]) => (
               <button
                 key={key}
+                ref={key === 'record' ? recordBtnRef : undefined}
                 type="button"
-                className={`oh-scan-mode ${mode === key ? 'active' : ''}`}
-                aria-pressed={mode === key}
-                onClick={() => setMode(key)}
+                className={`oh-scan-action ${key}`}
+                onClick={() => runAction(key)}
+                disabled={Boolean(busy)}
               >
-                {m.icon}
-                {m.label}
+                {a.icon}
+                {a.label}
               </button>
             ))}
           </div>
+
+          {notice && (
+            <p className="oh-scan-notice" role="alert">
+              {notice}
+            </p>
+          )}
         </section>
 
         <aside className="oh-scan-side">
-          {!result && (
-            <div className="oh-scan-card oh-scan-howto">
-              <div className="oh-scan-card-label">How it works</div>
-              <h2 className="oh-scan-card-title">{modeCopy.title}</h2>
-              <ol className="oh-scan-steps">
-                {modeCopy.steps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {result && resultCopy && (
-            <div className="oh-scan-result-layer">
-              <div className="oh-scan-result-backdrop" onClick={scanAgain} aria-hidden="true" />
-              <article className={`oh-scan-result ${resultCopy.tone}`} role="status" aria-live="polite">
-                <div className="oh-scan-result-head">
-                  <span className="oh-scan-result-icon">{resultCopy.icon}</span>
-                  <div>
-                    <h2 className="oh-scan-result-title">{resultCopy.title}</h2>
-                    <p className="oh-scan-result-body">{resultCopy.body}</p>
-                  </div>
-                </div>
-
-                {result.data ? (
-                  <div className="oh-scan-product">
-                    {result.data.imageUrl && (
-                      <img className="oh-scan-product-image" src={result.data.imageUrl} alt={result.data.productName} />
-                    )}
-                    <div className="oh-scan-product-body">
-                      <div className="oh-scan-product-producer">{result.data.producer}</div>
-                      <div className="oh-scan-product-name">{result.data.productName}</div>
-                      {result.data.variantSize && (
-                        <div className="oh-scan-product-variant">{result.data.variantSize}</div>
-                      )}
-                      <dl className="oh-scan-product-meta">
-                        <div>
-                          <dt>Batch</dt>
-                          <dd>{result.data.batchNo}</dd>
-                        </div>
-                        <div>
-                          <dt>Code</dt>
-                          <dd>{result.data.code}</dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </div>
-                ) : (
-                  result.code && (
-                    <div className="oh-scan-result-code">
-                      Code <strong>{result.code}</strong>
-                    </div>
-                  )
-                )}
-
-                <div className="oh-scan-result-actions">
-                  {result.status === 'error' && (
-                    <button type="button" className="oh-scan-btn secondary" onClick={() => checkCode(result.code)}>
-                      Try again
-                    </button>
-                  )}
-                  <button ref={scanAgainRef} type="button" className="oh-scan-btn primary" onClick={scanAgain}>
-                    Scan another
-                  </button>
-                  <Link to={homePath} className="oh-scan-btn secondary">
-                    Back to home
-                  </Link>
-                </div>
-              </article>
-            </div>
-          )}
+          <div className="oh-scan-card oh-scan-howto">
+            <div className="oh-scan-card-label">How it works</div>
+            <h2 className="oh-scan-card-title">Scan, then choose</h2>
+            <ol className="oh-scan-steps">
+              {HOW_IT_WORKS.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </div>
 
           <div className="oh-scan-card oh-scan-alt">
             <div className="oh-scan-card-label">Can't scan?</div>
@@ -606,14 +523,14 @@ const Scan = () => {
                     id="oh-scan-code"
                     value={manualCode}
                     onChange={(e) => setManualCode(e.target.value)}
-                    placeholder="e.g. DURGA-GHEE-00012"
+                    placeholder="e.g. V-HUB-00110"
                     autoComplete="off"
                     autoCapitalize="characters"
                     spellCheck={false}
                     autoFocus
                   />
-                  <button type="submit" className="oh-scan-btn primary" disabled={!manualCode.trim() || checking}>
-                    Check
+                  <button type="submit" className="oh-scan-btn primary" disabled={!manualCode.trim() || Boolean(busy)}>
+                    Use code
                   </button>
                 </div>
                 {codeError && <p className="oh-scan-alt-error">{codeError}</p>}

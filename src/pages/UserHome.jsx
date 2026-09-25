@@ -1,30 +1,51 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
 import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon } from '../components/ScanIcons.jsx';
-import { formatScanTime, readScanHistory } from '../utils/scanHistory';
+import { formatScanTime } from '../utils/format';
 import '../styles/app-shell.css';
 import '../styles/home.css';
 
-const RECENT_LIMIT = 5;
-
-const statusOf = (entry) => {
-  if (!entry.ok) return { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> };
-  if (entry.mode === 'record') return { label: 'Recorded', tone: 'neutral', icon: <BoxIcon size={16} /> };
-  return { label: 'Authentic', tone: 'success', icon: <CheckIcon size={16} /> };
+const STATUS = {
+  recorded: { label: 'Recorded', tone: 'neutral', icon: <BoxIcon size={16} /> },
+  authentic: { label: 'Authentic', tone: 'success', icon: <CheckIcon size={16} /> },
+  not_found: { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> },
+  invalid: { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> },
 };
 
 const StatTile = ({ label, value, tone = 'plain' }) => (
   <div className={`oh-home-stat ${tone}`}>
     <div className="oh-home-stat-label">{label}</div>
-    <div className="oh-home-stat-value">{value.toLocaleString('en-IN')}</div>
+    <div className="oh-home-stat-value">{value == null ? '—' : value.toLocaleString('en-IN')}</div>
   </div>
 );
 
 const UserHome = () => {
   const { user } = useSelector((state) => state.auth);
-  const { totals, recent } = useMemo(() => readScanHistory(user?.id), [user?.id]);
+  const [summary, setSummary] = useState(null);
+  const [status, setStatus] = useState('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get('/scans/summary')
+      .then(({ data }) => {
+        if (cancelled) return;
+        setSummary(data);
+        setStatus('succeeded');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('failed');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const totals = summary?.totals;
+  const recent = summary?.recent || [];
 
   return (
     <div className="oh-home">
@@ -39,17 +60,17 @@ const UserHome = () => {
           </span>
         </div>
         <p className="oh-home-hero-sub">Scan a product's QR to check it's genuine before you trust it.</p>
-        <Link to="/scan?mode=verify" className="oh-home-verify-btn">
+        <Link to="/scan" className="oh-home-verify-btn">
           <ShieldIcon size={18} />
           Verify authenticity
         </Link>
       </section>
 
       <section className="oh-home-stats" aria-label="Your scan summary">
-        <StatTile label="Total verifications" value={totals.verifications} />
-        <StatTile label="Scanned" value={totals.scanned} />
-        <StatTile label="Succeeded" value={totals.succeeded} tone="success" />
-        <StatTile label="Failed" value={totals.failed} tone="danger" />
+        <StatTile label="Total verifications" value={totals?.verifications} />
+        <StatTile label="Scanned" value={totals?.scanned} />
+        <StatTile label="Succeeded" value={totals?.succeeded} tone="success" />
+        <StatTile label="Failed" value={totals?.failed} tone="danger" />
       </section>
 
       <Link to="/scan" className="oh-home-scan-card">
@@ -74,29 +95,33 @@ const UserHome = () => {
           <h2 className="oh-home-recent-title">Recent verifications</h2>
         </div>
 
-        {recent.length === 0 ? (
-          <div className="oh-home-recent-empty">
-            No scans yet. Verify a product and it will show up here.
-          </div>
-        ) : (
+        {status === 'loading' && <div className="oh-home-recent-empty">Loading your scans…</div>}
+        {status === 'failed' && (
+          <div className="oh-home-recent-empty">Couldn't load your scans right now. Please try again later.</div>
+        )}
+        {status === 'succeeded' && recent.length === 0 && (
+          <div className="oh-home-recent-empty">No scans yet. Scan a product and it will show up here.</div>
+        )}
+
+        {recent.length > 0 && (
           <ul className="oh-home-recent-list">
-            {recent.slice(0, RECENT_LIMIT).map((entry) => {
-              const status = statusOf(entry);
+            {recent.map((scan) => {
+              const s = STATUS[scan.result];
               return (
-                <li key={entry.id} className="oh-home-recent-row">
-                  <span className={`oh-home-recent-icon ${status.tone}`}>{status.icon}</span>
+                <li key={scan.id} className="oh-home-recent-row">
+                  <span className={`oh-home-recent-icon ${s.tone}`}>{s.icon}</span>
                   <div className="oh-home-recent-text">
                     <div className="oh-home-recent-name">
-                      {entry.productName
-                        ? `${entry.productName}${entry.variantSize ? ` ${entry.variantSize}` : ''}`
+                      {scan.productName
+                        ? `${scan.productName}${scan.variantSize ? ` ${scan.variantSize}` : ''}`
                         : 'Unknown QR code'}
                     </div>
                     <div className="oh-home-recent-meta">
-                      {formatScanTime(entry.scannedAt)}
-                      {entry.code && ` · ${entry.code}`}
+                      {formatScanTime(scan.createdAt)}
+                      {scan.code && ` · ${scan.code}`}
                     </div>
                   </div>
-                  <span className={`oh-home-recent-status ${status.tone}`}>{status.label}</span>
+                  <span className={`oh-home-recent-status ${s.tone}`}>{s.label}</span>
                 </li>
               );
             })}
