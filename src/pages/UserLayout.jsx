@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import BottomNav from "../components/BottomNav.jsx";
 import { logout } from "../store/authSlice";
@@ -14,6 +14,9 @@ const SidebarIcon = ({ children }) => (
 const UserLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  // Home and Scan show the OriginHash logo themselves, so the phone top bar would double it up.
+  const showMobileTopbar = !["/home", "/scan"].includes(pathname);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -56,7 +59,11 @@ const UserLayout = () => {
         </SidebarIcon>
       </NavLink>
 
-      <span className="oh-sidebar-item disabled" title="Scan (coming soon)">
+      <NavLink
+        to="/scan"
+        className={({ isActive }) => `oh-sidebar-item ${isActive ? "active" : ""}`}
+        title="Scan"
+      >
         <SidebarIcon>
           <path
             d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3"
@@ -71,7 +78,7 @@ const UserLayout = () => {
             strokeLinecap="round"
           />
         </SidebarIcon>
-      </span>
+      </NavLink>
 
       <span className="oh-sidebar-item disabled" title="History (coming soon)">
         <SidebarIcon>
@@ -147,6 +154,7 @@ const UserLayout = () => {
     </aside>
 
     <div className="oh-user-content-col">
+      {showMobileTopbar && (
       <header className="oh-mobile-topbar">
         <div className="oh-mobile-topbar-brand">
           <span className="oh-mobile-topbar-logo">
@@ -191,6 +199,7 @@ const UserLayout = () => {
           </svg>
         </button>
       </header>
+      )}
 
       <main className="oh-admin-main oh-user-main">
         <Outlet />

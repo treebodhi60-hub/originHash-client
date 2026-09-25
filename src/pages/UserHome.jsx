@@ -1,59 +1,108 @@
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import BrandLogo from '../components/BrandLogo.jsx';
+import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon } from '../components/ScanIcons.jsx';
+import { formatScanTime, readScanHistory } from '../utils/scanHistory';
 import '../styles/app-shell.css';
+import '../styles/home.css';
+
+const RECENT_LIMIT = 5;
+
+const statusOf = (entry) => {
+  if (!entry.ok) return { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> };
+  if (entry.mode === 'record') return { label: 'Recorded', tone: 'neutral', icon: <BoxIcon size={16} /> };
+  return { label: 'Authentic', tone: 'success', icon: <CheckIcon size={16} /> };
+};
+
+const StatTile = ({ label, value, tone = 'plain' }) => (
+  <div className={`oh-home-stat ${tone}`}>
+    <div className="oh-home-stat-label">{label}</div>
+    <div className="oh-home-stat-value">{value.toLocaleString('en-IN')}</div>
+  </div>
+);
 
 const UserHome = () => {
   const { user } = useSelector((state) => state.auth);
-  const initial = (user?.name || user?.mobile || '?').charAt(0).toUpperCase();
+  const { totals, recent } = useMemo(() => readScanHistory(user?.id), [user?.id]);
 
   return (
-    <div className="oh-mobile-content">
-      {/* Laptop view — unchanged */}
-      <div className="oh-only-desktop">
-        <h1 className="oh-page-title">Hi{user?.name ? `, ${user.name}` : ''} 👋</h1>
-        <div className="oh-stub-card">
-          Home, Scan and History are part of a later module.
-          <br />
-          This build covers login and user management only — head to the{' '}
-          <strong>Profile</strong> tab to view or edit your details.
-        </div>
-      </div>
-
-      {/* Phone view */}
-      <div className="oh-only-mobile">
-        <div className="oh-home-hero">
+    <div className="oh-home">
+      <section className="oh-home-hero">
+        <div className="oh-home-hero-top">
           <div>
             <div className="oh-home-hero-greeting">Welcome back</div>
-            <div className="oh-home-hero-name">{user?.name || 'there'}</div>
+            <h1 className="oh-home-hero-name">{user?.name || 'there'}</h1>
           </div>
-          <div className="oh-home-hero-avatar">
-            {user?.photoUrl ? <img src={user.photoUrl} alt={user.name} /> : initial}
-          </div>
+          <span className="oh-home-hero-logo" title="OriginHash">
+            <BrandLogo size={22} />
+          </span>
+        </div>
+        <p className="oh-home-hero-sub">Scan a product's QR to check it's genuine before you trust it.</p>
+        <Link to="/scan?mode=verify" className="oh-home-verify-btn">
+          <ShieldIcon size={18} />
+          Verify authenticity
+        </Link>
+      </section>
+
+      <section className="oh-home-stats" aria-label="Your scan summary">
+        <StatTile label="Total verifications" value={totals.verifications} />
+        <StatTile label="Scanned" value={totals.scanned} />
+        <StatTile label="Succeeded" value={totals.succeeded} tone="success" />
+        <StatTile label="Failed" value={totals.failed} tone="danger" />
+      </section>
+
+      <Link to="/scan" className="oh-home-scan-card">
+        <span className="oh-home-scan-icon">
+          <QrIcon size={22} />
+        </span>
+        <span className="oh-home-scan-text">
+          <span className="oh-home-scan-title">Scan QR code</span>
+          <span className="oh-home-scan-sub">Point your camera at the product QR</span>
+        </span>
+        <span className="oh-home-scan-chevron">
+          <ChevronRightIcon size={18} />
+        </span>
+        <span className="oh-home-scan-cta">
+          Open scanner
+          <ChevronRightIcon size={16} />
+        </span>
+      </Link>
+
+      <section className="oh-home-recent">
+        <div className="oh-home-recent-head">
+          <h2 className="oh-home-recent-title">Recent verifications</h2>
         </div>
 
-        <div className="oh-home-section-label">What's next</div>
-
-        <div className="oh-home-feature-card">
-          <div className="oh-home-feature-icon">📷</div>
-          <div className="oh-home-feature-text">
-            <div className="oh-home-feature-title">Scan QR code</div>
-            <div className="oh-home-feature-sub">Point your camera at a product QR</div>
+        {recent.length === 0 ? (
+          <div className="oh-home-recent-empty">
+            No scans yet. Verify a product and it will show up here.
           </div>
-          <span className="oh-badge consumer">Coming soon</span>
-        </div>
-
-        <div className="oh-home-feature-card">
-          <div className="oh-home-feature-icon">🕒</div>
-          <div className="oh-home-feature-text">
-            <div className="oh-home-feature-title">Scan history</div>
-            <div className="oh-home-feature-sub">Your past verifications will appear here</div>
-          </div>
-          <span className="oh-badge consumer">Coming soon</span>
-        </div>
-
-        <div className="oh-home-hint-card">
-          Head to the <strong>Profile</strong> tab to view or update your details.
-        </div>
-      </div>
+        ) : (
+          <ul className="oh-home-recent-list">
+            {recent.slice(0, RECENT_LIMIT).map((entry) => {
+              const status = statusOf(entry);
+              return (
+                <li key={entry.id} className="oh-home-recent-row">
+                  <span className={`oh-home-recent-icon ${status.tone}`}>{status.icon}</span>
+                  <div className="oh-home-recent-text">
+                    <div className="oh-home-recent-name">
+                      {entry.productName
+                        ? `${entry.productName}${entry.variantSize ? ` ${entry.variantSize}` : ''}`
+                        : 'Unknown QR code'}
+                    </div>
+                    <div className="oh-home-recent-meta">
+                      {formatScanTime(entry.scannedAt)}
+                      {entry.code && ` · ${entry.code}`}
+                    </div>
+                  </div>
+                  <span className={`oh-home-recent-status ${status.tone}`}>{status.label}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 };

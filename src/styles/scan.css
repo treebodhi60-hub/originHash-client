@@ -1,0 +1,712 @@
+/* ---------- QR scanner: single column on phones, scanner + side panel on laptops ---------- */
+.oh-scan-page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ---------- Brand header ---------- */
+.oh-scan-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 14px;
+}
+
+.oh-scan-brand-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--oh-forest);
+  border: 1.5px solid var(--oh-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oh-scan-brand-name {
+  font-family: var(--oh-font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  color: var(--oh-forest);
+}
+
+.oh-scan-brand-name span {
+  color: var(--oh-gold);
+}
+
+.oh-scan-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+/* ---------- Dark scanner panel ---------- */
+.oh-scan-panel {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  border-radius: var(--oh-radius-lg);
+  padding: 12px 14px 16px;
+  box-shadow: var(--oh-shadow);
+}
+
+.oh-scan-toolbar {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+}
+
+.oh-scan-title {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--oh-white);
+}
+
+.oh-scan-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--oh-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.oh-scan-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.oh-scan-icon-btn.on {
+  background: var(--oh-gold);
+  color: var(--oh-forest);
+}
+
+.oh-scan-hint {
+  text-align: center;
+  color: #b9cfc8;
+  font-size: 0.78rem;
+  margin: 4px 0 12px;
+}
+
+/* ---------- Viewport ---------- */
+.oh-scan-viewport {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #08130f;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.oh-scan-video,
+.oh-scan-snapshot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oh-scan-viewport [hidden] {
+  display: none;
+}
+
+.oh-scan-video.mirrored,
+.oh-scan-snapshot.mirrored {
+  transform: scaleX(-1);
+}
+
+/* Uploaded photos are shown whole rather than cropped to the viewport. */
+.oh-scan-snapshot.photo {
+  object-fit: contain;
+}
+
+.oh-scan-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 68%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 14px;
+  /* Dims everything outside the target square. */
+  box-shadow: 0 0 0 100vmax rgba(4, 12, 10, 0.4);
+}
+
+.oh-scan-frame > span:not(.oh-scan-line) {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--oh-gold);
+}
+
+.oh-scan-frame .tl { top: -2px; left: -2px; border-right: none; border-bottom: none; border-top-left-radius: 14px; }
+.oh-scan-frame .tr { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 14px; }
+.oh-scan-frame .bl { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 14px; }
+.oh-scan-frame .br { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 14px; }
+
+.oh-scan-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 8%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--oh-gold), transparent);
+  box-shadow: 0 0 12px rgba(201, 164, 100, 0.7);
+  animation: oh-scan-sweep 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes oh-scan-sweep {
+  to {
+    top: 92%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oh-scan-line {
+    display: none;
+  }
+}
+
+.oh-scan-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.oh-scan-viewport.has-feed .oh-scan-overlay {
+  background: rgba(4, 12, 10, 0.45);
+}
+
+.oh-scan-placeholder {
+  color: rgba(255, 255, 255, 0.35);
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.oh-scan-placeholder.pulse {
+  animation: oh-scan-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes oh-scan-pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.oh-scan-overlay-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.oh-scan-overlay-body {
+  color: #b9cfc8;
+  font-size: 0.8rem;
+  max-width: 280px;
+  margin: 0;
+}
+
+.oh-scan-retry {
+  margin-top: 6px;
+  background: var(--oh-white);
+  color: var(--oh-forest);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.oh-scan-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--oh-gold);
+  animation: oh-scan-spin 0.8s linear infinite;
+}
+
+@keyframes oh-scan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.oh-scan-verdict {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--oh-white);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.oh-scan-verdict svg {
+  width: 34px;
+  height: 34px;
+}
+
+.oh-scan-verdict.success { background: var(--oh-green); }
+.oh-scan-verdict.danger { background: var(--oh-red); }
+.oh-scan-verdict.warning { background: #d97706; }
+
+/* ---------- Mode buttons ---------- */
+.oh-scan-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.oh-scan-mode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--oh-white);
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.oh-scan-mode svg {
+  flex-shrink: 0;
+}
+
+.oh-scan-mode:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.oh-scan-mode.active {
+  background: var(--oh-green);
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- Side column ---------- */
+.oh-scan-side {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.oh-scan-card {
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  padding: 14px 16px;
+}
+
+.oh-scan-card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--oh-text-muted);
+  font-weight: 700;
+}
+
+/* "How it works" only earns its space on laptops. */
+.oh-scan-howto {
+  display: none;
+}
+
+.oh-scan-card-title {
+  color: var(--oh-forest);
+  font-size: 1.05rem;
+  margin: 4px 0 10px;
+}
+
+.oh-scan-steps {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--oh-text);
+  font-size: 0.86rem;
+}
+
+.oh-scan-steps li {
+  margin: 6px 0;
+}
+
+.oh-scan-alt-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.oh-scan-alt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 10px;
+  border-radius: var(--oh-radius-sm);
+  border: 1.5px solid var(--oh-border);
+  background: var(--oh-white);
+  color: var(--oh-forest);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.oh-scan-alt-btn:hover,
+.oh-scan-alt-btn.active {
+  border-color: var(--oh-forest);
+  background: #eef6f0;
+}
+
+.oh-scan-alt-error {
+  color: var(--oh-red);
+  font-size: 0.8rem;
+  margin: 10px 0 0;
+}
+
+.oh-scan-code-form {
+  margin-top: 12px;
+}
+
+.oh-scan-code-form label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--oh-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+
+.oh-scan-code-row {
+  display: flex;
+  gap: 8px;
+}
+
+.oh-scan-code-row input {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-sm);
+  padding: 11px 12px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.oh-scan-code-row input::placeholder {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.oh-scan-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--oh-radius-sm);
+  padding: 11px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1.5px solid transparent;
+}
+
+.oh-scan-btn.primary {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+}
+
+.oh-scan-btn.primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.oh-scan-btn.secondary {
+  background: var(--oh-white);
+  border-color: var(--oh-border);
+  color: var(--oh-text);
+}
+
+/* ---------- Result: bottom sheet on phones ---------- */
+.oh-scan-result-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+}
+
+.oh-scan-result-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 20, 17, 0.45);
+}
+
+.oh-scan-result {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  margin: 0 auto;
+  background: var(--oh-white);
+  border-radius: 22px 22px 0 0;
+  padding: 20px 18px calc(18px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px rgba(8, 20, 17, 0.2);
+  animation: oh-scan-sheet-in 0.22s ease-out;
+}
+
+@keyframes oh-scan-sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+.oh-scan-result-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.oh-scan-result-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oh-scan-result.success .oh-scan-result-icon { background: var(--oh-badge-farmer-bg); color: var(--oh-badge-farmer-text); }
+.oh-scan-result.danger .oh-scan-result-icon { background: var(--oh-red-bg); color: var(--oh-red); }
+.oh-scan-result.warning .oh-scan-result-icon { background: #fef3c7; color: #b45309; }
+
+.oh-scan-result-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.oh-scan-result.success .oh-scan-result-title { color: var(--oh-badge-farmer-text); }
+.oh-scan-result.danger .oh-scan-result-title { color: #b91c1c; }
+.oh-scan-result.warning .oh-scan-result-title { color: #b45309; }
+
+.oh-scan-result-body {
+  color: var(--oh-text-muted);
+  font-size: 0.85rem;
+  margin: 2px 0 0;
+}
+
+.oh-scan-product {
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 10px;
+  background: var(--oh-cream);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+}
+
+.oh-scan-product-image {
+  width: 92px;
+  height: 92px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--oh-white);
+  flex-shrink: 0;
+}
+
+.oh-scan-product-body {
+  min-width: 0;
+  padding: 2px 0;
+}
+
+.oh-scan-product-producer {
+  color: var(--oh-gold);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.oh-scan-product-name {
+  color: var(--oh-forest);
+  font-family: var(--oh-font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+.oh-scan-product-variant {
+  color: var(--oh-text-muted);
+  font-size: 0.8rem;
+}
+
+.oh-scan-product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 8px 0 0;
+}
+
+.oh-scan-product-meta dt {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--oh-text-muted);
+}
+
+.oh-scan-product-meta dd {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--oh-text);
+  word-break: break-all;
+}
+
+.oh-scan-result-code {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--oh-cream);
+  border-radius: var(--oh-radius-sm);
+  font-size: 0.85rem;
+  color: var(--oh-text-muted);
+  word-break: break-all;
+}
+
+.oh-scan-result-code strong {
+  color: var(--oh-text);
+  margin-left: 4px;
+}
+
+.oh-scan-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.oh-scan-result-actions .oh-scan-btn {
+  flex: 1 1 130px;
+}
+
+/* ---------- Laptop ---------- */
+@media (min-width: 1024px) {
+  .oh-scan-page {
+    max-width: 1120px;
+    margin: 0;
+  }
+
+  .oh-scan-brand {
+    justify-content: flex-start;
+    padding-bottom: 20px;
+  }
+
+  .oh-scan-brand-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .oh-scan-brand-name {
+    font-size: 1.35rem;
+  }
+
+  .oh-scan-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .oh-scan-panel {
+    padding: 16px 22px 22px;
+  }
+
+  .oh-scan-title {
+    font-size: 1.1rem;
+  }
+
+  .oh-scan-hint {
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .oh-scan-viewport {
+    aspect-ratio: 16 / 10;
+    max-height: calc(100vh - 300px);
+    min-height: 300px;
+  }
+
+  .oh-scan-frame {
+    width: auto;
+    height: 70%;
+  }
+
+  .oh-scan-modes {
+    margin-top: 18px;
+  }
+
+  .oh-scan-side {
+    position: sticky;
+    top: 24px;
+  }
+
+  .oh-scan-card {
+    border-radius: var(--oh-radius-lg);
+    padding: 18px 20px;
+    box-shadow: var(--oh-shadow);
+  }
+
+  .oh-scan-howto {
+    display: block;
+  }
+
+  /* Result sits in the side column instead of a sheet. */
+  .oh-scan-result-layer {
+    position: static;
+    display: block;
+  }
+
+  .oh-scan-result-backdrop {
+    display: none;
+  }
+
+  .oh-scan-result {
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border: 1px solid var(--oh-border);
+    border-radius: var(--oh-radius-lg);
+    padding: 20px;
+    box-shadow: var(--oh-shadow);
+  }
+
+  .oh-scan-product {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .oh-scan-product-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+}

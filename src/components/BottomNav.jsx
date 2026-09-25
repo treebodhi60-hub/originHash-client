@@ -48,7 +48,7 @@ const icons = {
 
 const items = [
   { to: '/home', label: 'Home', icon: 'home' },
-  { to: '/home?tab=scan', label: 'Scan', icon: 'scan', disabled: true },
+  { to: '/scan', label: 'Scan', icon: 'scan' },
   { to: '/home?tab=history', label: 'History', icon: 'history', disabled: true },
   { to: '/images', label: 'Images', icon: 'images' },
   { to: '/qr-stickers', label: 'QR', icon: 'qr' },

@@ -1,0 +1,460 @@
+/* ---------- User home: phone first, two-column dashboard on laptops ---------- */
+.oh-home {
+  max-width: 480px;
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+  /* minmax(0, …) so long product names ellipsize instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'hero'
+    'stats'
+    'scan'
+    'recent';
+}
+
+/* ---------- Hero ---------- */
+.oh-home-hero {
+  grid-area: hero;
+  background: linear-gradient(160deg, var(--oh-forest) 0%, #0f2621 100%);
+  border-radius: var(--oh-radius-lg);
+  padding: 18px 18px 20px;
+  color: var(--oh-white);
+  box-shadow: var(--oh-shadow);
+}
+
+.oh-home-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.oh-home-hero-greeting {
+  color: #b9cfc8;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.oh-home-hero-name {
+  color: var(--oh-white);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.oh-home-hero-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid var(--oh-gold);
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Only shown on laptops, where the hero has room for a line of context. */
+.oh-home-hero-sub {
+  display: none;
+}
+
+.oh-home-verify-btn {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: var(--oh-radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--oh-white);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.oh-home-verify-btn svg {
+  color: var(--oh-gold);
+}
+
+.oh-home-verify-btn:hover,
+.oh-home-verify-btn:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Stat tiles ---------- */
+.oh-home-stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.oh-home-stat {
+  border-radius: var(--oh-radius-md);
+  padding: 12px 14px;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+}
+
+.oh-home-stat-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--oh-text-muted);
+}
+
+.oh-home-stat-value {
+  font-family: var(--oh-font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--oh-text);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.oh-home-stat.success {
+  background: var(--oh-badge-farmer-bg);
+  border-color: #bde8cb;
+}
+
+.oh-home-stat.success .oh-home-stat-label,
+.oh-home-stat.success .oh-home-stat-value {
+  color: var(--oh-badge-farmer-text);
+}
+
+.oh-home-stat.danger {
+  background: var(--oh-red-bg);
+  border-color: #fbc9c9;
+}
+
+.oh-home-stat.danger .oh-home-stat-label,
+.oh-home-stat.danger .oh-home-stat-value {
+  color: #b91c1c;
+}
+
+/* ---------- Scan QR card ---------- */
+.oh-home-scan-card {
+  grid-area: scan;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--oh-white);
+  border: 1.5px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  text-decoration: none;
+  color: var(--oh-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.oh-home-scan-card:hover {
+  border-color: var(--oh-forest);
+  box-shadow: var(--oh-shadow);
+}
+
+.oh-home-scan-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--oh-forest);
+  color: var(--oh-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oh-home-scan-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.oh-home-scan-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.oh-home-scan-sub {
+  color: var(--oh-text-muted);
+  font-size: 0.78rem;
+  margin-top: 1px;
+}
+
+.oh-home-scan-chevron {
+  color: var(--oh-text-muted);
+  display: flex;
+}
+
+.oh-home-scan-cta {
+  display: none;
+}
+
+/* ---------- Recent verifications ---------- */
+.oh-home-recent {
+  grid-area: recent;
+  margin-top: 6px;
+}
+
+.oh-home-recent-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.oh-home-recent-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--oh-text);
+}
+
+.oh-home-recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.oh-home-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--oh-border);
+}
+
+.oh-home-recent-row:last-child {
+  border-bottom: none;
+}
+
+.oh-home-recent-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oh-home-recent-icon.success {
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+}
+
+.oh-home-recent-icon.danger {
+  background: var(--oh-red-bg);
+  color: var(--oh-red);
+}
+
+.oh-home-recent-icon.neutral {
+  background: #eef6f0;
+  color: var(--oh-forest);
+}
+
+.oh-home-recent-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.oh-home-recent-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oh-home-recent-meta {
+  color: var(--oh-text-muted);
+  font-size: 0.74rem;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oh-home-recent-status {
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.oh-home-recent-status.success {
+  color: var(--oh-badge-farmer-text);
+}
+
+.oh-home-recent-status.danger {
+  color: var(--oh-red);
+}
+
+.oh-home-recent-status.neutral {
+  color: var(--oh-forest);
+}
+
+.oh-home-recent-empty {
+  background: var(--oh-white);
+  border: 1px dashed var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--oh-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Laptop ---------- */
+@media (min-width: 1024px) {
+  .oh-home {
+    max-width: 1080px;
+    margin: 0;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-areas:
+      'hero scan'
+      'stats stats'
+      'recent recent';
+  }
+
+  .oh-home-hero {
+    padding: 26px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .oh-home-hero-greeting {
+    font-size: 0.85rem;
+  }
+
+  .oh-home-hero-name {
+    font-size: 1.9rem;
+  }
+
+  .oh-home-hero-logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .oh-home-hero-sub {
+    display: block;
+    color: #cfe0da;
+    font-size: 0.92rem;
+    /* Bottom margin keeps a gap above the button when the hero is only as tall as its content. */
+    margin: 8px 0 22px;
+    max-width: 480px;
+  }
+
+  /* Pinned to the bottom so it lines up with the scan card's button beside it. */
+  .oh-home-verify-btn {
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 12px 22px;
+  }
+
+  .oh-home-stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .oh-home-stat {
+    padding: 18px 20px;
+    box-shadow: var(--oh-shadow);
+  }
+
+  .oh-home-stat-label {
+    font-size: 0.8rem;
+  }
+
+  .oh-home-stat-value {
+    font-size: 1.9rem;
+    margin-top: 4px;
+  }
+
+  .oh-home-scan-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 24px;
+    border-radius: var(--oh-radius-lg);
+    box-shadow: var(--oh-shadow);
+  }
+
+  .oh-home-scan-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+  }
+
+  .oh-home-scan-title {
+    font-size: 1.1rem;
+  }
+
+  .oh-home-scan-sub {
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  .oh-home-scan-chevron {
+    display: none;
+  }
+
+  .oh-home-scan-cta {
+    margin-top: auto;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--oh-forest);
+    color: var(--oh-white);
+    border-radius: var(--oh-radius-sm);
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .oh-home-recent {
+    margin-top: 0;
+    background: var(--oh-white);
+    border: 1px solid var(--oh-border);
+    border-radius: var(--oh-radius-lg);
+    box-shadow: var(--oh-shadow);
+    padding: 20px 24px 8px;
+  }
+
+  .oh-home-recent-title {
+    font-size: 1.05rem;
+    color: var(--oh-forest);
+  }
+
+  .oh-home-recent-row {
+    padding: 14px 4px;
+  }
+
+  .oh-home-recent-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .oh-home-recent-name {
+    font-size: 0.95rem;
+  }
+
+  .oh-home-recent-meta {
+    font-size: 0.8rem;
+  }
+
+  .oh-home-recent-status {
+    font-size: 0.85rem;
+  }
+
+  .oh-home-recent-empty {
+    border: none;
+    padding: 28px 16px 36px;
+  }
+}
