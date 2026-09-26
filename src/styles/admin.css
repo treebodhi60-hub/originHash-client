@@ -680,16 +680,6 @@
   font-size: 0.78rem;
 }
 
-.oh-image-delete-btn {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: var(--oh-radius-sm);
-  border: 1.5px solid var(--oh-border);
-  background: var(--oh-white);
-  font-size: 0.85rem;
-}
-
 /* ---------- Image lightbox ---------- */
 .oh-panel-backdrop.oh-lightbox-backdrop {
   align-items: center;
@@ -870,6 +860,46 @@
   padding: 8px;
 }
 
+/* Horizontal 50:50 prints as a tall card (45 × 65 mm): image across the top, QR below. */
+.oh-sticker-card.tall {
+  width: 210px;
+  margin: 0 auto;
+}
+
+.oh-sticker-card.tall .oh-sticker-header {
+  padding: 8px 12px;
+}
+
+.oh-sticker-card.tall .oh-sticker-producer {
+  font-size: 0.8rem;
+}
+
+.oh-sticker-card.tall .oh-sticker-body {
+  align-items: center;
+  padding: 8px 12px;
+}
+
+/* No beige behind the image on tall stickers (matches the PDF); dashed outline marks the spot. */
+.oh-sticker-card.tall .oh-sticker-image-box {
+  flex: none;
+  width: 100%;
+  aspect-ratio: 112 / 48;
+  background: none;
+  border-style: dashed;
+}
+
+.oh-sticker-card.tall .oh-sticker-qr-box {
+  flex: none;
+  width: 58%;
+  padding: 4px;
+  border: none;
+}
+
+.oh-sticker-card.tall .oh-sticker-footer {
+  padding: 4px 12px 10px;
+  font-size: 0.6rem;
+}
+
 .oh-sticker-footer {
   display: flex;
   justify-content: space-between;
@@ -1033,4 +1063,34 @@
   color: var(--oh-text-muted);
   font-size: 0.82rem;
   margin-top: 6px;
+}
+
+/* Codes whose product journey you can open (your own batches, or any as an admin). */
+.oh-qr-journey-hint {
+  margin: -4px 0 8px;
+  font-size: 0.76rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-qr-code-chip.link {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.oh-qr-code-chip.link img {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.oh-qr-code-chip.link:hover img,
+.oh-qr-code-chip.link:focus-visible img {
+  border-color: var(--oh-forest);
+  box-shadow: 0 0 0 2px rgba(22, 56, 50, 0.2);
+}
+
+.oh-qr-code-chip.link span {
+  color: var(--oh-forest);
+  font-weight: 600;
 }

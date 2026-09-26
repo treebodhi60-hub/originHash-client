@@ -1,8 +1,10 @@
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 
-// User pages that also exist inside the admin panel, so an admin opening the user link lands on the admin copy.
-const ADMIN_EQUIVALENTS = { '/scan': '/admin/scan', '/scan/camera': '/admin/scan', '/scan/result': '/admin/scan/result' };
+// User pages that also exist inside the admin panel (at /admin + the same path), so an admin
+// opening the user link lands on the admin copy.
+const SHARED_WITH_ADMIN = ['/scan', '/history', '/journey'];
+const isShared = (pathname) => SHARED_WITH_ADMIN.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { token, user } = useSelector((state) => state.auth);
@@ -17,8 +19,8 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   }
 
   if (!adminOnly && user.isAdmin) {
-    const adminPath = ADMIN_EQUIVALENTS[location.pathname];
-    return <Navigate to={adminPath ? adminPath + location.search : '/admin/users'} replace />;
+    const target = isShared(location.pathname) ? `/admin${location.pathname}${location.search}` : '/admin/users';
+    return <Navigate to={target} replace />;
   }
 
   return children;

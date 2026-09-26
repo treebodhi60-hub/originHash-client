@@ -15,8 +15,8 @@ const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // The scan screens carry their own header, so the phone top bar would double it up.
-  const showMobileTopbar = !pathname.startsWith('/admin/scan');
+  // The scan screens and History carry their own header, so the phone top bar would double it up.
+  const showMobileTopbar = !['/admin/scan', '/admin/history', '/admin/journey'].some((p) => pathname.startsWith(p));
 
   const handleLogout = () => {
     dispatch(logout());
@@ -58,6 +58,17 @@ const AdminLayout = () => {
               strokeLinecap="round"
             />
             <path d="M4 12h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </SidebarIcon>
+        </NavLink>
+
+        <NavLink
+          to="/admin/history"
+          className={({ isActive }) => `oh-sidebar-item ${isActive ? 'active' : ''}`}
+          title="History"
+        >
+          <SidebarIcon>
+            <path d="M12 8v5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
           </SidebarIcon>
         </NavLink>
 

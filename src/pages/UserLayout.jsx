@@ -17,7 +17,7 @@ const UserLayout = () => {
   const { pathname } = useLocation();
   // Home, the scan screens and History carry their own header (per the mobile design), so skip the phone top bar there.
   const showMobileTopbar =
-    pathname !== "/home" && !pathname.startsWith("/scan") && !pathname.startsWith("/history");
+    pathname !== "/home" && !["/scan", "/history", "/journey"].some((p) => pathname.startsWith(p));
 
   const handleLogout = () => {
     dispatch(logout());

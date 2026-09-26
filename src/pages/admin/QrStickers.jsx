@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { scanRoutes } from '../../utils/scanRoutes';
 import { fetchFolders } from '../../store/imageStockSlice';
 import {
   fetchCodes,
@@ -17,6 +19,22 @@ const SPLIT_TYPES = [
   { value: 'vertical-50-50', label: 'Vertical 50:50' },
   { value: 'horizontal-50-50', label: 'Horizontal 50:50' },
 ];
+
+const PAGE_SIZES = ['A4', 'A3'];
+
+// Mirrors the backend's pageLayout() in qrStickerController.js: sticker size and how many fit
+// on each paper size (A3 horizontal stickers are laid out sideways, 8 × 4).
+const STICKER_LAYOUTS = {
+  'vertical-50-50': { size: '89 × 51 mm, business-card size', perPage: { A4: 10, A3: 21 } },
+  'horizontal-50-50': { size: '45 × 65 mm', perPage: { A4: 16, A3: 32 } },
+};
+
+const layoutSummary = (splitType, pageSize, count) => {
+  const layout = STICKER_LAYOUTS[splitType] || STICKER_LAYOUTS['vertical-50-50'];
+  const perPage = layout.perPage[pageSize] || layout.perPage.A4;
+  const pages = Math.max(1, Math.ceil((Number(count) || 0) / perPage));
+  return { perPage, pages, size: layout.size };
+};
 
 const slugifyForCode = (name) =>
   (name || 'PRODUCT')
@@ -76,7 +94,7 @@ const StickerPreview = ({ form }) => {
   return (
     <div className="oh-sticker-preview-wrap">
       <div className="oh-sticker-preview-label">Sticker preview</div>
-      <div className="oh-sticker-card">
+      <div className={`oh-sticker-card ${isHorizontal ? 'tall' : ''}`}>
         <div className="oh-sticker-header">
           <div className="oh-sticker-producer">{form.producer || 'PRODUCER NAME'}</div>
           <div className="oh-sticker-batchline">
@@ -130,6 +148,7 @@ const GenerateTab = () => {
     batchNo: '',
     numberOfQrs: 10,
     splitType: 'vertical-50-50',
+    pageSize: 'A4',
     folderId: '',
   });
 
@@ -154,6 +173,7 @@ const GenerateTab = () => {
         variantSize: form.variantSize.trim(),
         batchNo: form.batchNo.trim(),
         splitType: form.splitType,
+        pageSize: form.pageSize,
         numberOfQrs: Number(form.numberOfQrs),
         folderId: Number(form.folderId),
       })
@@ -172,9 +192,12 @@ const GenerateTab = () => {
       batchNo: '',
       numberOfQrs: 10,
       splitType: 'vertical-50-50',
+      pageSize: 'A4',
       folderId: '',
     });
   };
+
+  const summary = layoutSummary(form.splitType, form.pageSize, form.numberOfQrs);
 
   if (lastResult) {
     return (
@@ -195,8 +218,10 @@ const GenerateTab = () => {
           </button>
         </div>
         <p className="oh-qr-success-note">
-          Each sticker is sized to fit a standard business card. Scanning its QR code opens the product's
-          assigned image.
+          {(() => {
+            const { perPage, size } = layoutSummary(lastResult.batch.splitType, lastResult.batch.pageSize, 0);
+            return `${perPage} stickers per ${lastResult.batch.pageSize || 'A4'} page, each ${size}.`;
+          })()}
         </p>
       </div>
     );
@@ -251,6 +276,20 @@ const GenerateTab = () => {
               </select>
             </div>
             <div className="oh-field oh-field-span2">
+              <label>Paper size</label>
+              <select value={form.pageSize} onChange={(e) => update('pageSize', e.target.value)}>
+                {PAGE_SIZES.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+              <div className="oh-qr-folder-hint">
+                {summary.perPage} stickers per {form.pageSize} page ({summary.size} each) · this batch prints on{' '}
+                {summary.pages} {summary.pages === 1 ? 'page' : 'pages'}
+              </div>
+            </div>
+            <div className="oh-field oh-field-span2">
               <label>Image folder</label>
               <select value={form.folderId} onChange={(e) => update('folderId', e.target.value)} required>
                 <option value="">Select an existing folder</option>
@@ -280,6 +319,9 @@ const GenerateTab = () => {
 
 const HistoryTab = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((s) => s.auth);
+  const journeyPath = scanRoutes(user).journey;
   const { codes, codesStatus, filters, search, producerFilter, batchNoFilter } = useSelector((s) => s.qrSticker);
 
   useEffect(() => {
@@ -304,6 +346,8 @@ const HistoryTab = () => {
           batchNo: code.batchNo,
           variantSize: code.variantSize,
           folderName: code.folderName,
+          splitType: code.splitType,
+          pageSize: code.pageSize,
           createdAt: code.createdAt,
           items: [],
         });
@@ -363,18 +407,35 @@ const HistoryTab = () => {
               <div className="oh-image-sub">
                 Batch {group.batchNo}
                 {group.variantSize ? ` · ${group.variantSize}` : ''} · {group.folderName} ·{' '}
-                {group.items.length} codes · {formatDate(group.createdAt)}
+                {group.items.length} codes · {group.splitType === 'horizontal-50-50' ? 'Horizontal' : 'Vertical'},{' '}
+                {group.pageSize || 'A4'} · {formatDate(group.createdAt)}
               </div>
             </div>
             <DownloadPdfButton batchId={group.batchId} productName={group.productName} />
           </div>
+          {group.items.some((item) => item.canViewJourney) && (
+            <div className="oh-qr-journey-hint">Tap a code to see its product journey.</div>
+          )}
           <div className="oh-qr-code-strip">
-            {group.items.map((item) => (
-              <div className="oh-qr-code-chip" key={item.id}>
-                <img src={item.imageUrl} alt={item.code} loading="lazy" />
-                <span>{item.code}</span>
-              </div>
-            ))}
+            {group.items.map((item) =>
+              item.canViewJourney ? (
+                <button
+                  type="button"
+                  className="oh-qr-code-chip link"
+                  key={item.id}
+                  onClick={() => navigate(`${journeyPath}/${item.uuid}`)}
+                  title={`Product journey for ${item.code}`}
+                >
+                  <img src={item.imageUrl} alt={item.code} loading="lazy" />
+                  <span>{item.code}</span>
+                </button>
+              ) : (
+                <div className="oh-qr-code-chip" key={item.id}>
+                  <img src={item.imageUrl} alt={item.code} loading="lazy" />
+                  <span>{item.code}</span>
+                </div>
+              )
+            )}
           </div>
         </div>
       ))}

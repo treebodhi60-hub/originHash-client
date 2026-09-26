@@ -5,7 +5,6 @@ import {
   createFolder,
   fetchImages,
   uploadImages,
-  deleteImage,
   toggleImageBlock,
   clearRejected,
 } from '../../store/imageStockSlice';
@@ -88,17 +87,9 @@ const FolderCard = ({ folder, onOpen }) => (
   </button>
 );
 
-const ImageCard = ({ image, showFolder, onDelete, onToggleBlock, onView, canModerate }) => {
-  const [deleting, setDeleting] = useState(false);
+const ImageCard = ({ image, showFolder, onToggleBlock, onView, canModerate }) => {
   const [toggling, setToggling] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-
-  const handleDelete = async () => {
-    if (!window.confirm(`Delete "${image.fileName}"? This cannot be undone.`)) return;
-    setDeleting(true);
-    await onDelete(image.id);
-    setDeleting(false);
-  };
 
   const handleToggleBlock = async () => {
     setToggling(true);
@@ -132,6 +123,7 @@ const ImageCard = ({ image, showFolder, onDelete, onToggleBlock, onView, canMode
           {image.fileName}
         </div>
         <div className="oh-image-sub">
+          {image.serialNo != null && `No. ${image.serialNo} · `}
           {image.width}×{image.height}
           {showFolder && image.folderName ? ` · ${image.folderName}` : ''}
         </div>
@@ -148,9 +140,6 @@ const ImageCard = ({ image, showFolder, onDelete, onToggleBlock, onView, canMode
             disabled={toggling}
           >
             {toggling ? '…' : image.isBlocked ? 'Unblock' : 'Block'}
-          </button>
-          <button type="button" className="oh-image-delete-btn" title="Delete image" onClick={handleDelete} disabled={deleting}>
-            {deleting ? '…' : '🗑'}
           </button>
         </div>
       )}
@@ -223,7 +212,9 @@ const UploadDropzone = ({ folderId, onUploaded }) => {
       >
         <div className="oh-dropzone-icon">⬆</div>
         <div className="oh-dropzone-title">{uploading ? 'Uploading…' : 'Drag and drop images here'}</div>
-        <div className="oh-dropzone-subtitle">JPG or PNG · min 800×600 · duplicates are auto-rejected</div>
+        <div className="oh-dropzone-subtitle">
+          JPG or PNG · at least 640×480 (either way round) and in sharp focus · duplicates are auto-rejected
+        </div>
         <div className="oh-dropzone-actions">
           <button type="button" className="oh-btn-save" onClick={() => filesInputRef.current?.click()} disabled={uploading}>
             Choose files
@@ -311,7 +302,6 @@ const FolderDetail = ({ folder, onBack }) => {
           <ImageCard
             key={image.id}
             image={image}
-            onDelete={(id) => dispatch(deleteImage(id))}
             onToggleBlock={(id, block) => dispatch(toggleImageBlock({ id, block }))}
             onView={setViewingImage}
             canModerate={canModerate}
@@ -415,7 +405,6 @@ const ImageStock = () => {
                 key={image.id}
                 image={image}
                 showFolder
-                onDelete={(id) => dispatch(deleteImage(id))}
                 onToggleBlock={(id, block) => dispatch(toggleImageBlock({ id, block }))}
                 onView={setViewingImage}
                 canModerate={canModerate}

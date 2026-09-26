@@ -59,18 +59,6 @@ export const uploadImages = createAsyncThunk(
   }
 );
 
-export const deleteImage = createAsyncThunk(
-  'imageStock/deleteImage',
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/image-stock/images/${id}`);
-      return id;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Could not delete image.');
-    }
-  }
-);
-
 export const toggleImageBlock = createAsyncThunk(
   'imageStock/toggleImageBlock',
   async ({ id, block }, { rejectWithValue }) => {
@@ -123,14 +111,6 @@ const imageStockSlice = createSlice({
         state.lastRejected = action.payload.rejected || [];
         const folder = state.folders.find((f) => f.id === action.payload.folderId);
         if (folder) folder.imagesCount = (folder.imagesCount || 0) + action.payload.images.length;
-      })
-      .addCase(deleteImage.fulfilled, (state, action) => {
-        const removed = state.images.find((img) => img.id === action.payload);
-        state.images = state.images.filter((img) => img.id !== action.payload);
-        if (removed) {
-          const folder = state.folders.find((f) => f.id === removed.folderId);
-          if (folder) folder.imagesCount = Math.max(0, (folder.imagesCount || 1) - 1);
-        }
       })
       .addCase(toggleImageBlock.fulfilled, (state, action) => {
         const idx = state.images.findIndex((img) => img.id === action.payload.id);

@@ -13,6 +13,7 @@ import ScanResult from "./pages/ScanResult.jsx";
 import ScanCompare from "./pages/ScanCompare.jsx";
 import History from "./pages/History.jsx";
 import ScanDetails from "./pages/ScanDetails.jsx";
+import ProductJourney from "./pages/ProductJourney.jsx";
 import UserLayout from "./pages/UserLayout.jsx";
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
@@ -70,6 +71,7 @@ function App() {
         <Route path="/scan/result" element={<ScanResult />} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:id" element={<ScanDetails />} />
+        <Route path="/journey/:uuid" element={<ProductJourney />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/images" element={<ImageStock />} />
         <Route path="/qr-stickers" element={<QrStickers />} />
@@ -88,9 +90,13 @@ function App() {
         <Route path="admins" element={<Navigate to="/admin/users" replace />} />
         <Route path="images" element={<ImageStock />} />
         <Route path="qr-stickers" element={<QrStickers />} />
-        <Route path="scan" element={<Scan />} />
+        <Route path="scan" element={<UserHome />} />
+        <Route path="scan/camera" element={<Scan />} />
         <Route path="scan/compare" element={<ScanCompare />} />
         <Route path="scan/result" element={<ScanResult />} />
+        <Route path="history" element={<History />} />
+        <Route path="history/:id" element={<ScanDetails />} />
+        <Route path="journey/:uuid" element={<ProductJourney />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route index element={<Navigate to="users" replace />} />
       </Route>

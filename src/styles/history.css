@@ -440,12 +440,158 @@
 
 /* ---------- Laptop ---------- */
 @media (min-width: 1024px) {
+  /* History on laptops: page header + full-width table panel instead of the phone card. */
   .oh-history-page {
-    max-width: 760px;
+    max-width: 1240px;
   }
 
-  .oh-history-body {
-    padding: 26px 32px;
+  .oh-history-desk-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px 24px;
+    margin-bottom: 18px;
+  }
+
+  .oh-history-desk-head .oh-history-filters {
+    margin-bottom: 0;
+  }
+
+  .oh-history-page .oh-history-shell {
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .oh-history-page .oh-history-head {
+    display: none;
+  }
+
+  /* The phone card list sets its own display, so hide it explicitly here. */
+  .oh-history-page .oh-history-list {
+    display: none;
+  }
+
+  .oh-history-page .oh-history-body {
+    margin-top: 0;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+  }
+
+  .oh-history-panel {
+    background: var(--oh-white);
+    border: 1px solid var(--oh-border);
+    border-radius: var(--oh-radius-lg);
+    box-shadow: var(--oh-shadow);
+    overflow: hidden;
+  }
+
+  .oh-history-panel .oh-history-empty {
+    padding: 56px 16px;
+  }
+
+  .oh-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    color: var(--oh-text);
+  }
+
+  .oh-history-table th {
+    padding: 12px 18px;
+    background: #fbf7f0;
+    border-bottom: 1px solid var(--oh-border);
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--oh-text-muted);
+    white-space: nowrap;
+  }
+
+  .oh-history-table td {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--oh-border);
+    vertical-align: middle;
+  }
+
+  .oh-history-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .oh-history-table tbody tr {
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+
+  .oh-history-table tbody tr:hover {
+    background: #fcf8f1;
+  }
+
+  .oh-history-status-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .oh-history-status-cell .oh-history-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+  }
+
+  .oh-history-status-cell .oh-history-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .oh-history-status-cell.success { color: var(--oh-badge-farmer-text); }
+  .oh-history-status-cell.danger { color: var(--oh-red); }
+  .oh-history-status-cell.info { color: var(--oh-badge-retailer-text); }
+  .oh-history-status-cell.muted { color: var(--oh-text-muted); }
+
+  .oh-history-cell-main {
+    font-weight: 600;
+  }
+
+  .oh-history-cell-sub {
+    margin-top: 1px;
+    font-size: 0.76rem;
+    color: var(--oh-text-muted);
+  }
+
+  .oh-history-cell-code {
+    margin-top: 2px;
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.74rem;
+    color: var(--oh-text-muted);
+  }
+
+  .oh-history-cell-none {
+    color: var(--oh-text-muted);
+  }
+
+  .oh-history-cell-date {
+    white-space: nowrap;
+    color: var(--oh-text-muted);
+  }
+
+  .oh-history-cell-action {
+    width: 1%;
+    text-align: right;
+  }
+
+  .oh-history-more {
+    width: auto;
+    min-width: 200px;
+    margin: 16px auto 0;
+    padding: 10px 22px;
   }
 
   .oh-details-page {
@@ -455,4 +601,48 @@
   .oh-details-body {
     padding: 28px 36px;
   }
+}
+
+/* Location row: place name, with the coordinates underneath. */
+.oh-details-place {
+  display: block;
+}
+
+.oh-details-coords {
+  display: block;
+  font-weight: 500;
+  font-size: 0.76rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-details-ids dd {
+  overflow-wrap: anywhere;
+}
+
+.oh-details-attribution {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--oh-text-muted);
+}
+
+/* Admin history covers every user. */
+.oh-history-scope {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--oh-forest);
+}
+
+.oh-history-by {
+  margin-top: 1px;
+  font-size: 0.76rem;
+  color: var(--oh-text-muted);
+}
+
+/* Shown when the journey only includes the viewer's own scans. */
+.oh-journey-scope {
+  margin: -4px 0 12px;
+  font-size: 0.78rem;
+  color: var(--oh-text-muted);
 }

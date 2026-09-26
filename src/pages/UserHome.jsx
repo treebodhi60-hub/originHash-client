@@ -5,6 +5,7 @@ import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
 import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon, UndoIcon } from '../components/ScanIcons.jsx';
 import { formatScanTime } from '../utils/format';
+import { scanRoutes } from '../utils/scanRoutes';
 import '../styles/app-shell.css';
 import '../styles/home.css';
 
@@ -34,6 +35,7 @@ const StatTile = ({ label, value, tone = 'plain' }) => (
 
 const UserHome = () => {
   const { user } = useSelector((state) => state.auth);
+  const paths = scanRoutes(user);
   const [summary, setSummary] = useState(null);
   const [status, setStatus] = useState('loading');
 
@@ -70,7 +72,7 @@ const UserHome = () => {
           </span>
         </div>
         <p className="oh-home-hero-sub">Scan a product's QR to check it's genuine before you trust it.</p>
-        <Link to="/scan/camera" className="oh-home-verify-btn">
+        <Link to={paths.camera} className="oh-home-verify-btn">
           <ShieldIcon size={18} />
           Verify authenticity
         </Link>
@@ -83,7 +85,7 @@ const UserHome = () => {
         <StatTile label="Failed" value={totals?.failed} tone="danger" />
       </section>
 
-      <Link to="/scan/camera" className="oh-home-scan-card">
+      <Link to={paths.camera} className="oh-home-scan-card">
         <span className="oh-home-scan-icon">
           <QrIcon size={22} />
         </span>
@@ -103,7 +105,7 @@ const UserHome = () => {
       <section className="oh-home-recent">
         <div className="oh-home-recent-head">
           <h2 className="oh-home-recent-title">Recent verifications</h2>
-          <Link to="/history" className="oh-home-recent-all">
+          <Link to={paths.history} className="oh-home-recent-all">
             View all
           </Link>
         </div>
@@ -132,6 +134,7 @@ const UserHome = () => {
                     <div className="oh-home-recent-meta">
                       {formatScanTime(scan.createdAt)}
                       {scan.code && ` · ${scan.code}`}
+                      {summary.scope === 'all' && scan.scannedBy && !scan.scannedBy.isYou && ` · by ${scan.scannedBy.name || 'unnamed user'}`}
                     </div>
                   </div>
                   <span className={`oh-home-recent-status ${s.tone}`}>{s.label}</span>
