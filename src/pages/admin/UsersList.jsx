@@ -4,12 +4,14 @@ import { fetchUsers, toggleBlock, setSearch, setStatusFilter } from '../../store
 import { fetchAdmins, promoteUser, demoteAdmin, setSearch as setAdminSearch } from '../../store/adminsSlice';
 import UserEditPanel from './UserEditPanel.jsx';
 import AdminEditPanel from './AdminEditPanel.jsx';
+import UserHistoryPanel from './UserHistoryPanel.jsx';
 import '../../styles/admin.css';
 
 const exportCsv = (users) => {
-  const header = ['Name', 'Mobile', 'Type', 'Address', 'Email', 'Status', 'Scans'];
+  const header = ['Name', 'Previous names', 'Mobile', 'Type', 'Address', 'Email', 'Status', 'Scans'];
   const rows = users.map((u) => [
     u.name || '',
+    (u.profileHistory?.previousNames || []).join('; '),
     u.mobile,
     u.userType || '',
     u.address || '',
@@ -180,6 +182,7 @@ const NormalUsersTab = ({ showPromote }) => {
   const { list, total, active, blocked, search, statusFilter, status } = useSelector((state) => state.users);
   const [panel, setPanel] = useState(null); // { mode: 'add' | 'edit', user? }
   const [promoting, setPromoting] = useState(null); // user being promoted
+  const [historyUserId, setHistoryUserId] = useState(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -214,7 +217,7 @@ const NormalUsersTab = ({ showPromote }) => {
       <div className="oh-toolbar">
         <input
           className="oh-search-input"
-          placeholder="Search name or number"
+          placeholder="Search name or number (past ones too)"
           value={search}
           onChange={(e) => dispatch(setSearch(e.target.value))}
         />
@@ -238,6 +241,7 @@ const NormalUsersTab = ({ showPromote }) => {
 
         {list.map((user) => {
           const initial = (user.name || user.mobile || '?').charAt(0).toUpperCase();
+          const { editCount = 0, previousNames = [] } = user.profileHistory || {};
           return (
             <div className="oh-user-row" key={user.id}>
               <div className="oh-user-avatar">
@@ -248,10 +252,18 @@ const NormalUsersTab = ({ showPromote }) => {
                   <span className="oh-user-name">{user.name || 'Unnamed user'}</span>
                   {user.userType && <span className={`oh-badge ${user.userType}`}>{user.userType}</span>}
                   {user.isBlocked && <span className="oh-badge blocked">Blocked</span>}
+                  {editCount > 0 && (
+                    <span className="oh-badge changed" title={`Profile details changed ${editCount} time${editCount === 1 ? '' : 's'}`}>
+                      Profile edited
+                    </span>
+                  )}
                 </div>
                 <div className="oh-user-meta">
                   +91 {user.mobile} · {user.address || '—'} · {user.scansCount ?? 0} scans
                 </div>
+                {previousNames.length > 0 && (
+                  <div className="oh-user-meta oh-user-previous">Previously: {previousNames.join(', ')}</div>
+                )}
               </div>
               <div className="oh-user-actions">
                 {showPromote && (
@@ -259,6 +271,9 @@ const NormalUsersTab = ({ showPromote }) => {
                     Promote
                   </button>
                 )}
+                <button className="oh-btn-cancel" onClick={() => setHistoryUserId(user.id)}>
+                  History
+                </button>
                 <button className="oh-btn-edit" onClick={() => setPanel({ mode: 'edit', user })}>
                   Edit
                 </button>
@@ -276,6 +291,7 @@ const NormalUsersTab = ({ showPromote }) => {
 
       {panel && <UserEditPanel mode={panel.mode} user={panel.user} onClose={() => setPanel(null)} />}
       {promoting && <PromoteModal user={promoting} onClose={() => setPromoting(null)} />}
+      {historyUserId && <UserHistoryPanel userId={historyUserId} onClose={() => setHistoryUserId(null)} />}
     </div>
   );
 };

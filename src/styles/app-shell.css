@@ -240,6 +240,7 @@
 .oh-badge.supplier { background: var(--oh-badge-distributor-bg); color: var(--oh-badge-distributor-text); }
 .oh-badge.consumer { background: var(--oh-badge-consumer-bg); color: var(--oh-badge-consumer-text); }
 .oh-badge.blocked { background: var(--oh-red-bg); color: var(--oh-red); }
+.oh-badge.changed { background: var(--oh-badge-changed-bg); color: var(--oh-badge-changed-text); }
 
 .oh-section-label {
   font-size: 0.72rem;

@@ -22,6 +22,8 @@
   --oh-badge-distributor-text: #b45309;
   --oh-badge-consumer-bg: #e5e7eb;
   --oh-badge-consumer-text: #374151;
+  --oh-badge-changed-bg: #ffedd5;   /* "Profile edited / changed" — a user's details changed */
+  --oh-badge-changed-text: #9a3412;
 
   --oh-text: #1f2937;
   --oh-text-muted: #6b7280;

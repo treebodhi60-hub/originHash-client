@@ -31,6 +31,29 @@ export const createFolder = createAsyncThunk(
   }
 );
 
+// Admin: a new randomly named sample folder with 10 photos of different categories.
+export const generateSampleFolder = createAsyncThunk(
+  'imageStock/generateSampleFolder',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post('/image-stock/folders/sample');
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Could not generate a sample folder.');
+    }
+  }
+);
+
+// Admin: only sample folders that no QR batch has used can be deleted.
+export const deleteFolder = createAsyncThunk('imageStock/deleteFolder', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/image-stock/folders/${id}`);
+    return id;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Could not delete folder.');
+  }
+});
+
 export const fetchImages = createAsyncThunk(
   'imageStock/fetchImages',
   async ({ folderId, search = '' } = {}, { rejectWithValue }) => {
@@ -94,6 +117,14 @@ const imageStockSlice = createSlice({
       })
       .addCase(createFolder.fulfilled, (state, action) => {
         state.folders.unshift(action.payload);
+      })
+      .addCase(generateSampleFolder.fulfilled, (state, action) => {
+        state.folders.unshift(action.payload.folder);
+        state.images = [...action.payload.images, ...state.images];
+      })
+      .addCase(deleteFolder.fulfilled, (state, action) => {
+        state.folders = state.folders.filter((f) => f.id !== action.payload);
+        state.images = state.images.filter((img) => img.folderId !== action.payload);
       })
       .addCase(fetchImages.pending, (state) => {
         state.imagesStatus = 'loading';

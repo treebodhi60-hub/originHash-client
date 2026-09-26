@@ -1094,3 +1094,245 @@
   color: var(--oh-forest);
   font-weight: 600;
 }
+
+/* ---------- Profile history (one account, every name it has used) ---------- */
+/* Rows can carry Promote + History + Edit + Block; let them wrap on phones. */
+.oh-user-actions {
+  flex-wrap: wrap;
+}
+
+.oh-user-previous {
+  color: var(--oh-badge-changed-text);
+}
+
+.oh-qr-creator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-qr-creator .oh-badge {
+  margin-top: 0;
+  padding: 1px 8px;
+  font-size: 0.7rem;
+}
+
+.oh-qr-creator strong {
+  color: var(--oh-text);
+}
+
+.oh-qr-creator-note {
+  font-style: italic;
+}
+
+.oh-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--oh-forest);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.oh-history-names {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-history-name {
+  background: var(--oh-cream);
+  border: 1px solid var(--oh-border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  color: var(--oh-text);
+  font-weight: 600;
+}
+
+.oh-history-intro {
+  font-size: 0.8rem;
+  color: var(--oh-text-muted);
+  margin: 0 0 18px;
+}
+
+.oh-history-list {
+  list-style: none;
+  margin: 0 0 0 6px;
+  padding: 0;
+  border-left: 2px solid var(--oh-border);
+}
+
+.oh-history-item {
+  position: relative;
+  padding: 0 0 20px 18px;
+}
+
+.oh-history-item::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--oh-white);
+  border: 2px solid var(--oh-gold);
+}
+
+.oh-history-item.current::before {
+  background: var(--oh-forest);
+  border-color: var(--oh-forest);
+}
+
+.oh-history-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--oh-text);
+}
+
+.oh-history-current {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.oh-history-when {
+  font-size: 0.75rem;
+  color: var(--oh-text-muted);
+  margin-top: 2px;
+}
+
+.oh-history-fields {
+  margin: 8px 0 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+.oh-history-fields > div {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 8px;
+}
+
+.oh-history-fields dt {
+  color: var(--oh-text-muted);
+}
+
+.oh-history-fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.oh-history-old {
+  color: var(--oh-text-muted);
+  text-decoration: line-through;
+}
+
+.oh-history-batches {
+  margin-top: 10px;
+  background: var(--oh-cream);
+  border-radius: var(--oh-radius-sm);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+}
+
+.oh-history-batches.untracked {
+  margin-top: 4px;
+  border: 1px dashed var(--oh-border);
+  background: none;
+}
+
+.oh-history-batches-title {
+  font-weight: 700;
+  color: var(--oh-forest);
+  margin-bottom: 4px;
+}
+
+.oh-history-batches ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--oh-text);
+}
+
+/* ---------- Sample folders (generated test photos, deletable while unused) ---------- */
+.oh-badge.sample {
+  background: var(--oh-badge-producer-bg);
+  color: var(--oh-badge-producer-text);
+}
+
+.oh-folder-card .oh-badge.sample,
+.oh-admin-title .oh-badge.sample {
+  margin-top: 0;
+  padding: 1px 8px;
+  font-size: 0.7rem;
+  vertical-align: middle;
+}
+
+.oh-folder-card-wrap {
+  position: relative;
+  display: flex;
+}
+
+.oh-folder-card-wrap > .oh-folder-card {
+  flex: 1;
+  min-width: 0;
+}
+
+.oh-folder-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--oh-border);
+  background: var(--oh-white);
+  color: var(--oh-red);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.oh-folder-delete:hover,
+.oh-folder-delete:focus-visible {
+  border-color: var(--oh-red);
+  background: var(--oh-red-bg);
+}
+
+.oh-btn-with-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oh-success {
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+  border-radius: var(--oh-radius-sm);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+
+.oh-notice-action {
+  margin-left: 8px;
+  color: inherit;
+}

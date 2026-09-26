@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchFolders,
   createFolder,
+  generateSampleFolder,
+  deleteFolder,
   fetchImages,
   uploadImages,
   toggleImageBlock,
@@ -73,18 +75,33 @@ const NewFolderCard = ({ onCreate }) => {
   );
 };
 
-const FolderCard = ({ folder, onOpen }) => (
-  <button type="button" className="oh-folder-card" onClick={() => onOpen(folder)}>
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.4l1.6 2h9A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Z"
-        stroke="var(--oh-forest)"
-        strokeWidth="1.5"
-      />
-    </svg>
-    <span className="oh-folder-name">{folder.name}</span>
-    <span className="oh-folder-count">{folder.imagesCount ?? 0} images</span>
-  </button>
+// `onDelete` is only passed for sample folders an admin can remove.
+const FolderCard = ({ folder, onOpen, onDelete }) => (
+  <div className="oh-folder-card-wrap">
+    <button type="button" className="oh-folder-card" onClick={() => onOpen(folder)}>
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.4l1.6 2h9A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Z"
+          stroke="var(--oh-forest)"
+          strokeWidth="1.5"
+        />
+      </svg>
+      <span className="oh-folder-name">{folder.name}</span>
+      <span className="oh-folder-count">{folder.imagesCount ?? 0} images</span>
+      {folder.isSample && <span className="oh-badge sample">Sample</span>}
+    </button>
+    {onDelete && (
+      <button
+        type="button"
+        className="oh-folder-delete"
+        onClick={() => onDelete(folder)}
+        title="Delete this sample folder"
+        aria-label={`Delete ${folder.name}`}
+      >
+        ✕
+      </button>
+    )}
+  </div>
 );
 
 const ImageCard = ({ image, showFolder, onToggleBlock, onView, canModerate }) => {
@@ -253,12 +270,26 @@ const UploadDropzone = ({ folderId, onUploaded }) => {
   );
 };
 
-const FolderDetail = ({ folder, onBack }) => {
+const FolderDetail = ({ folder, onBack, onDelete }) => {
   const dispatch = useDispatch();
   const { images, imagesStatus } = useSelector((s) => s.imageStock);
   const canModerate = useSelector((s) => Boolean(s.auth.user?.isAdmin));
   const [search, setSearch] = useState('');
   const [viewingImage, setViewingImage] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError('');
+    const result = await onDelete(folder);
+    if (result.ok) {
+      onBack();
+    } else {
+      setDeleting(false);
+      if (result.message) setDeleteError(result.message);
+    }
+  };
 
   useEffect(() => {
     dispatch(fetchImages({ folderId: folder.id }));
@@ -276,10 +307,21 @@ const FolderDetail = ({ folder, onBack }) => {
           <button type="button" className="oh-back-link" onClick={onBack}>
             ← All folders
           </button>
-          <h1 className="oh-admin-title">{folder.name}</h1>
+          <h1 className="oh-admin-title">
+            {folder.name} {folder.isSample && <span className="oh-badge sample">Sample</span>}
+          </h1>
           <p className="oh-admin-subtitle">{filtered.length} images</p>
         </div>
+        {canModerate && folder.isSample && (
+          <div className="oh-header-actions">
+            <button type="button" className="oh-btn-block" onClick={handleDelete} disabled={deleting}>
+              {deleting ? 'Deleting…' : 'Delete sample folder'}
+            </button>
+          </div>
+        )}
       </div>
+
+      {deleteError && <div className="oh-error">{deleteError}</div>}
 
       <UploadDropzone folderId={folder.id} onUploaded={() => dispatch(fetchImages({ folderId: folder.id }))} />
 
@@ -322,6 +364,8 @@ const ImageStock = () => {
   const [search, setSearch] = useState('');
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [viewingImage, setViewingImage] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [notice, setNotice] = useState(null); // { type: 'success' | 'error', text, folder? }
 
   useEffect(() => {
     dispatch(fetchFolders());
@@ -338,6 +382,36 @@ const ImageStock = () => {
     return action.meta.requestStatus === 'fulfilled';
   };
 
+  const handleGenerateSample = async () => {
+    setGenerating(true);
+    setNotice(null);
+    const action = await dispatch(generateSampleFolder());
+    setGenerating(false);
+    if (action.meta.requestStatus !== 'fulfilled') {
+      setNotice({ type: 'error', text: action.payload });
+      return;
+    }
+    const { folder, images: added, skipped = [] } = action.payload;
+    const categories = added.map((img) => img.fileName.replace(/\.\w+$/, '')).join(', ');
+    const missing = skipped.length ? ` Couldn't add: ${skipped.map((s) => s.category).join(', ')}.` : '';
+    setNotice({ type: 'success', text: `${folder.name} created with ${added.length} images: ${categories}.${missing}`, folder });
+  };
+
+  // Resolves to { ok, message }; a cancelled confirm is { ok: false } with no message.
+  const handleDeleteFolder = async (folder) => {
+    const count = folder.imagesCount ?? 0;
+    if (!window.confirm(`Delete ${folder.name} and its ${count} image${count === 1 ? '' : 's'}? This can't be undone.`)) {
+      return { ok: false };
+    }
+    const action = await dispatch(deleteFolder(folder.id));
+    if (action.meta.requestStatus === 'fulfilled') {
+      setNotice({ type: 'success', text: `${folder.name} deleted.` });
+      return { ok: true };
+    }
+    setNotice({ type: 'error', text: action.payload });
+    return { ok: false, message: action.payload };
+  };
+
   const filteredFolders = useMemo(
     () => folders.filter((f) => f.name.toLowerCase().includes(search.toLowerCase())),
     [folders, search]
@@ -349,7 +423,9 @@ const ImageStock = () => {
   );
 
   if (selectedFolder) {
-    return <FolderDetail folder={selectedFolder} onBack={() => setSelectedFolder(null)} />;
+    return (
+      <FolderDetail folder={selectedFolder} onBack={() => setSelectedFolder(null)} onDelete={handleDeleteFolder} />
+    );
   }
 
   return (
@@ -361,7 +437,31 @@ const ImageStock = () => {
             {folders.length} folders · {images.length} images
           </p>
         </div>
+        {canModerate && (
+          <div className="oh-header-actions">
+            <button type="button" className="oh-btn-add oh-btn-with-spinner" onClick={handleGenerateSample} disabled={generating}>
+              {generating ? (
+                <>
+                  <span className="oh-spinner" /> Fetching 10 photos…
+                </>
+              ) : (
+                '+ Generate sample folder'
+              )}
+            </button>
+          </div>
+        )}
       </div>
+
+      {notice && (
+        <div className={notice.type === 'error' ? 'oh-error' : 'oh-success'}>
+          {notice.text}
+          {notice.folder && (
+            <button type="button" className="oh-link-btn oh-notice-action" onClick={() => setSelectedFolder(notice.folder)}>
+              Open folder
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="oh-toolbar">
         <input
@@ -387,7 +487,12 @@ const ImageStock = () => {
           <div className="oh-folder-grid">
             <NewFolderCard onCreate={handleCreateFolder} />
             {filteredFolders.map((folder) => (
-              <FolderCard key={folder.id} folder={folder} onOpen={setSelectedFolder} />
+              <FolderCard
+                key={folder.id}
+                folder={folder}
+                onOpen={setSelectedFolder}
+                onDelete={canModerate && folder.isSample ? handleDeleteFolder : undefined}
+              />
             ))}
           </div>
         </>
