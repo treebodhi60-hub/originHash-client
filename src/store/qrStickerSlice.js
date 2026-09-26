@@ -46,6 +46,12 @@ export const generateBatch = createAsyncThunk(
   }
 );
 
+// Whether a batch number is already used. Resolves to the warning to show, or '' when it's free.
+export const checkBatchNo = async (batchNo) => {
+  const { data } = await api.get('/qr-stickers/batches/check', { params: { batchNo } });
+  return data.exists ? data.message : '';
+};
+
 export const downloadBatchPdf = async (batchId, fileNameHint = 'stickers') => {
   try {
     const { data } = await api.get(`/qr-stickers/batches/${batchId}/pdf`, { responseType: 'blob' });

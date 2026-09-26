@@ -1336,3 +1336,19 @@
   margin-left: 8px;
   color: inherit;
 }
+
+/* ---------- Field-level alert (e.g. a batch no that's already used) ---------- */
+.oh-field input.invalid,
+.oh-field input.invalid:focus {
+  border-color: var(--oh-red);
+}
+
+.oh-field-alert {
+  margin-top: 6px;
+  background: var(--oh-red-bg);
+  color: var(--oh-red);
+  border-radius: var(--oh-radius-sm);
+  padding: 7px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { scanRoutes } from '../../utils/scanRoutes';
@@ -9,6 +9,7 @@ import {
   fetchCodes,
   fetchFilters,
   generateBatch,
+  checkBatchNo,
   downloadBatchPdf,
   setSearch,
   setProducerFilter,
@@ -194,9 +195,30 @@ const GenerateTab = () => {
     folderId: '',
   });
 
+  const batchNoRef = useRef(null);
+  const [batchNoError, setBatchNoError] = useState('');
+  const [checking, setChecking] = useState(false);
+
   useEffect(() => {
     dispatch(fetchFolders());
   }, [dispatch]);
+
+  // Batch numbers must be unique: warn as soon as a used one is typed.
+  useEffect(() => {
+    const batchNo = form.batchNo.trim();
+    setBatchNoError('');
+    if (!batchNo) return undefined;
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      checkBatchNo(batchNo)
+        .then((message) => !cancelled && setBatchNoError(message))
+        .catch(() => {});
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [form.batchNo]);
 
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -208,6 +230,17 @@ const GenerateTab = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.folderId) return;
+
+    // Check again right before generating, in case the live check hadn't answered yet.
+    setChecking(true);
+    const taken = await checkBatchNo(form.batchNo.trim()).catch(() => '');
+    setChecking(false);
+    if (taken) {
+      setBatchNoError(taken);
+      batchNoRef.current?.focus();
+      return;
+    }
+
     const action = await dispatch(
       generateBatch({
         producer: form.producer.trim(),
@@ -293,8 +326,22 @@ const GenerateTab = () => {
               <input value={form.variantSize} onChange={(e) => update('variantSize', e.target.value)} />
             </div>
             <div className="oh-field">
-              <label>Batch no</label>
-              <input value={form.batchNo} onChange={(e) => update('batchNo', e.target.value)} required />
+              <label htmlFor="qr-batch-no">Batch no</label>
+              <input
+                id="qr-batch-no"
+                ref={batchNoRef}
+                className={batchNoError ? 'invalid' : ''}
+                aria-invalid={Boolean(batchNoError)}
+                aria-describedby={batchNoError ? 'qr-batch-no-error' : undefined}
+                value={form.batchNo}
+                onChange={(e) => update('batchNo', e.target.value)}
+                required
+              />
+              {batchNoError && (
+                <div id="qr-batch-no-error" className="oh-field-alert" role="alert">
+                  ⚠ {batchNoError}
+                </div>
+              )}
             </div>
             <div className="oh-field">
               <label>Number of QRs</label>
@@ -348,7 +395,11 @@ const GenerateTab = () => {
             </div>
           </div>
 
-          <button type="submit" className="oh-btn-generate" disabled={generating || !form.folderId}>
+          <button
+            type="submit"
+            className="oh-btn-generate"
+            disabled={generating || checking || !form.folderId || Boolean(batchNoError)}
+          >
             {generating ? 'Generating…' : `⊞ Generate ${form.numberOfQrs || 0} stickers`}
           </button>
         </form>
