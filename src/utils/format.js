@@ -16,3 +16,8 @@ export const formatDateTime = (iso) =>
   new Date(iso)
     .toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
     .replace(',', '');
+
+export const formatShortDate = (iso) =>
+  new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+export const formatCoords = ({ latitude, longitude }) => `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;

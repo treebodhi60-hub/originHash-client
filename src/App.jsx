@@ -11,6 +11,8 @@ import UserHome from "./pages/UserHome.jsx";
 import Scan from "./pages/Scan.jsx";
 import ScanResult from "./pages/ScanResult.jsx";
 import ScanCompare from "./pages/ScanCompare.jsx";
+import History from "./pages/History.jsx";
+import ScanDetails from "./pages/ScanDetails.jsx";
 import UserLayout from "./pages/UserLayout.jsx";
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
@@ -61,9 +63,13 @@ function App() {
         }
       >
         <Route path="/home" element={<UserHome />} />
-        <Route path="/scan" element={<Scan />} />
+        {/* The Scan tab opens the same dashboard as Home; its buttons open the camera. */}
+        <Route path="/scan" element={<UserHome />} />
+        <Route path="/scan/camera" element={<Scan />} />
         <Route path="/scan/compare" element={<ScanCompare />} />
         <Route path="/scan/result" element={<ScanResult />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/history/:id" element={<ScanDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/images" element={<ImageStock />} />
         <Route path="/qr-stickers" element={<QrStickers />} />

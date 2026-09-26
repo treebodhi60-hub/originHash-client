@@ -18,6 +18,7 @@ import {
 } from '../components/ScanIcons.jsx';
 import useRollbackOnLeave, { rollBackScan } from '../hooks/useRollbackOnLeave';
 import { createQrDecoder, drawToCanvas, extractCode } from '../utils/qr';
+import { scanRoutes } from '../utils/scanRoutes';
 import '../styles/app-shell.css';
 import '../styles/scan.css';
 
@@ -75,8 +76,8 @@ const cameraErrorState = (err) => {
   return 'error';
 };
 
-// Best-effort device location for "recorded at your location". Never blocks recording:
-// a denied, unanswered or slow permission prompt just records without it.
+// Best-effort device location, saved with every scan ("recorded at your location", and the
+// location on verification details). A denied, unanswered or slow prompt just saves without it.
 const getLocation = () =>
   new Promise((resolve) => {
     if (!navigator.geolocation) {
@@ -101,8 +102,7 @@ const Scan = () => {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
-  const scanPath = user?.isAdmin ? '/admin/scan' : '/scan';
-  const homePath = user?.isAdmin ? '/admin/users' : '/home';
+  const paths = scanRoutes(user);
 
   const [camera, setCamera] = useState('starting');
   const [mirrored, setMirrored] = useState(false);
@@ -134,6 +134,9 @@ const Scan = () => {
   const mountedRef = useRef(true);
   const resumeOnShowRef = useRef(false);
   const repeatGuardRef = useRef({ raw: null, until: 0 });
+  // Location is looked up as soon as a QR is captured, so it's usually ready by the time
+  // the user taps an action instead of delaying the next screen.
+  const locationRef = useRef(null);
   const showImageBtnRef = useRef(null);
   // The PENDING verification this page still owns; leaving the page rolls it back.
   const openScanIdRef = useRef(null);
@@ -235,6 +238,7 @@ const Scan = () => {
     navigator.vibrate?.(60);
     repeatGuardRef.current.raw = raw;
     setCaptured({ code: extractCode(raw) });
+    locationRef.current = getLocation();
     setNotice('');
   };
 
@@ -261,7 +265,7 @@ const Scan = () => {
     setBusy(action);
     setNotice('');
     try {
-      const position = action === 'record' ? await getLocation() : null;
+      const position = await (locationRef.current ?? getLocation());
       const { data } = await api.post('/scans', { code: captured.code, action, ...position });
       const pending = data.scan.result === 'PENDING';
       if (!mountedRef.current) {
@@ -276,7 +280,7 @@ const Scan = () => {
         setVerifying({ scan: data.scan, product: data.product });
         return;
       }
-      navigate(`${scanPath}/result`, { state: data });
+      navigate(paths.result, { state: data });
     } catch (err) {
       if (!mountedRef.current) return;
       setBusy(null);
@@ -292,13 +296,13 @@ const Scan = () => {
       const { data } = await api.post(`/scans/${verifying.scan.id}/reveal`);
       if (!mountedRef.current) return;
       openScanIdRef.current = null; // the Compare screen owns the open verification now
-      navigate(`${scanPath}/compare`, { state: data });
+      navigate(paths.compare, { state: data });
     } catch (err) {
       if (!mountedRef.current) return;
       const data = err.response?.data;
       if (data?.scan?.result === 'ALREADY_VIEWED') {
         openScanIdRef.current = null;
-        navigate(`${scanPath}/result`, { state: data });
+        navigate(paths.result, { state: data });
         return;
       }
       setRevealing(false);
@@ -310,12 +314,12 @@ const Scan = () => {
     const scanId = openScanIdRef.current;
     openScanIdRef.current = null;
     if (scanId) rollBackScan(scanId);
-    navigate(homePath);
+    navigate(paths.home);
   };
 
   const goBack = () => {
     if (location.key !== 'default') navigate(-1);
-    else navigate(homePath);
+    else navigate(paths.home);
   };
 
   const toggleTorch = async () => {
@@ -368,6 +372,7 @@ const Scan = () => {
     stopCamera();
     setFrozen(null);
     setCaptured({ code });
+    locationRef.current = getLocation();
     setNotice('');
   };
 

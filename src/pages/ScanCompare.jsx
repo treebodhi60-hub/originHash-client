@@ -1,32 +1,41 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
+import ScanReportForm from '../components/ScanReportForm.jsx';
 import { ArrowLeftIcon, CheckIcon, CrossIcon, ImageIcon, ShieldIcon } from '../components/ScanIcons.jsx';
 import useRollbackOnLeave, { rollBackScan } from '../hooks/useRollbackOnLeave';
 import { formatDateTime } from '../utils/format';
+import { scanRoutes } from '../utils/scanRoutes';
 import '../styles/app-shell.css';
 import '../styles/scan.css';
 
 // "Compare image": the sticker's once-only image, revealed from the scanner's
-// "Yes, show the image". The user answers Matched / Unmatched; leaving without
-// answering (back arrow, back button, nav bar) records the scan as ROLLED_BACK.
+// "Yes, show the image". Matched closes the scan straight away; Unmatched opens an optional
+// photo + description report, and submitting it closes the scan as UNMATCHED. Leaving before
+// either (back arrow, back button, nav bar) records the scan as ROLLED_BACK.
 const ScanCompare = () => {
   const { user } = useSelector((state) => state.auth);
   const location = useLocation();
   const navigate = useNavigate();
-  const scanPath = user?.isAdmin ? '/admin/scan' : '/scan';
+  const paths = scanRoutes(user);
   const { scan, product } = location.state || {};
 
   const [answering, setAnswering] = useState(null);
   const [error, setError] = useState('');
   const [imageFailed, setImageFailed] = useState(false);
   const [imageAttempt, setImageAttempt] = useState(0);
+  const [reporting, setReporting] = useState(false);
+  const reportRef = useRef(null);
   const openScanIdRef = useRef(scan?.result === 'PENDING' ? scan.id : null);
   useRollbackOnLeave(openScanIdRef);
 
-  if (!scan || !product?.imageUrl) return <Navigate to={scanPath} replace />;
+  useEffect(() => {
+    if (reporting) reportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [reporting]);
+
+  if (!scan || !product?.imageUrl) return <Navigate to={paths.camera} replace />;
 
   const answer = async (result) => {
     if (answering) return;
@@ -34,12 +43,16 @@ const ScanCompare = () => {
     setError('');
     try {
       const { data } = await api.patch(`/scans/${scan.id}`, { result });
-      openScanIdRef.current = null;
-      navigate(`${scanPath}/result`, { replace: true, state: data });
+      showResult(data);
     } catch (err) {
       setAnswering(null);
       setError(err.response?.data?.message || "Couldn't save your answer. Check your connection and try again.");
     }
+  };
+
+  const showResult = (data) => {
+    openScanIdRef.current = null;
+    navigate(paths.result, { replace: true, state: data });
   };
 
   const goBack = () => {
@@ -47,7 +60,7 @@ const ScanCompare = () => {
     openScanIdRef.current = null;
     if (scanId) rollBackScan(scanId);
     if (location.key !== 'default') navigate(-1);
-    else navigate(scanPath, { replace: true });
+    else navigate(paths.camera, { replace: true });
   };
 
   const retryImage = () => {
@@ -136,14 +149,26 @@ const ScanCompare = () => {
             </button>
             <button
               type="button"
-              className="oh-compare-answer unmatched"
-              onClick={() => answer('UNMATCHED')}
+              className={`oh-compare-answer unmatched ${reporting ? 'active' : ''}`}
+              onClick={() => setReporting(true)}
               disabled={Boolean(answering)}
+              aria-expanded={reporting}
             >
               <CrossIcon size={18} />
-              {answering === 'UNMATCHED' ? 'Saving…' : 'Unmatched'}
+              Unmatched
             </button>
           </div>
+
+          {reporting && (
+            <div ref={reportRef} className="oh-compare-report">
+              <p className="oh-compare-report-intro">Tell us what looks wrong. Both are optional.</p>
+              <ScanReportForm
+                scanId={scan.id}
+                placeholder="The label looks different from the verified image"
+                onReported={showResult}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

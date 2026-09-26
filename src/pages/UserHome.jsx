@@ -70,7 +70,7 @@ const UserHome = () => {
           </span>
         </div>
         <p className="oh-home-hero-sub">Scan a product's QR to check it's genuine before you trust it.</p>
-        <Link to="/scan" className="oh-home-verify-btn">
+        <Link to="/scan/camera" className="oh-home-verify-btn">
           <ShieldIcon size={18} />
           Verify authenticity
         </Link>
@@ -83,7 +83,7 @@ const UserHome = () => {
         <StatTile label="Failed" value={totals?.failed} tone="danger" />
       </section>
 
-      <Link to="/scan" className="oh-home-scan-card">
+      <Link to="/scan/camera" className="oh-home-scan-card">
         <span className="oh-home-scan-icon">
           <QrIcon size={22} />
         </span>
@@ -103,6 +103,9 @@ const UserHome = () => {
       <section className="oh-home-recent">
         <div className="oh-home-recent-head">
           <h2 className="oh-home-recent-title">Recent verifications</h2>
+          <Link to="/history" className="oh-home-recent-all">
+            View all
+          </Link>
         </div>
 
         {status === 'loading' && <div className="oh-home-recent-empty">Loading your scans…</div>}

@@ -1,0 +1,458 @@
+/* ---------- Verification history list ---------- */
+.oh-history-page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.oh-history-head {
+  padding-bottom: 30px;
+}
+
+.oh-history-body {
+  text-align: left;
+}
+
+.oh-history-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: 14px;
+}
+
+.oh-history-chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #e2c992;
+  background: #fdf1dc;
+  color: var(--oh-text);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.oh-history-chip.active {
+  background: var(--oh-forest);
+  border-color: var(--oh-forest);
+  color: var(--oh-white);
+}
+
+.oh-history-empty {
+  padding: 28px 12px;
+  text-align: center;
+  color: var(--oh-text-muted);
+  font-size: 0.86rem;
+}
+
+.oh-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.oh-history-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+}
+
+.oh-history-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.oh-history-icon.success { background: var(--oh-badge-farmer-bg); color: var(--oh-badge-farmer-text); }
+.oh-history-icon.danger { background: var(--oh-red-bg); color: var(--oh-red); }
+.oh-history-icon.info { background: var(--oh-badge-retailer-bg); color: var(--oh-badge-retailer-text); }
+.oh-history-icon.muted { background: var(--oh-badge-consumer-bg); color: var(--oh-text-muted); }
+
+.oh-history-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.oh-history-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--oh-text);
+  overflow-wrap: anywhere;
+}
+
+.oh-history-producer {
+  margin-top: 1px;
+  font-size: 0.78rem;
+  color: #92400e;
+}
+
+.oh-history-meta {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+}
+
+/* Keep the pin with its coordinates when the line wraps on narrow phones. */
+.oh-history-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.oh-history-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.oh-history-status {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.oh-history-status.success { color: var(--oh-badge-farmer-text); }
+.oh-history-status.danger { color: var(--oh-red); }
+.oh-history-status.info { color: var(--oh-badge-retailer-text); }
+.oh-history-status.muted { color: var(--oh-text-muted); }
+
+.oh-history-view {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.oh-history-more {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px;
+  border-radius: var(--oh-radius-md);
+  border: 1.5px solid var(--oh-border);
+  background: var(--oh-white);
+  color: var(--oh-forest);
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+
+.oh-history-more:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* ---------- Scan / verification details ---------- */
+.oh-details-body {
+  text-align: left;
+  position: relative;
+}
+
+.oh-details-toast {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  font-size: 0.74rem;
+}
+
+.oh-details-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.oh-details-hero .oh-result-heading {
+  margin-top: 0;
+}
+
+.oh-details-hero .oh-result-text {
+  margin-top: -6px;
+}
+
+.oh-result-icon.muted {
+  background: var(--oh-badge-consumer-bg);
+  color: var(--oh-text-muted);
+}
+
+.oh-details-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.oh-details-pill.success { background: var(--oh-badge-farmer-bg); color: var(--oh-badge-farmer-text); }
+.oh-details-pill.info { background: var(--oh-badge-retailer-bg); color: var(--oh-badge-retailer-text); }
+
+.oh-details-list {
+  margin: 0;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+  padding: 4px 14px;
+}
+
+.oh-details-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--oh-border);
+  font-size: 0.86rem;
+}
+
+.oh-details-row:last-child {
+  border-bottom: none;
+}
+
+.oh-details-row dt {
+  color: var(--oh-text-muted);
+}
+
+.oh-details-row dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--oh-text);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.oh-details-ids {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  display: grid;
+  gap: 10px;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+}
+
+.oh-details-ids dt {
+  font-size: 0.72rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-details-ids dd {
+  margin: 2px 0 0;
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--oh-text);
+}
+
+.oh-details-footnote {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--oh-text-muted);
+}
+
+/* Record scan: product card + journey timeline */
+.oh-details-product {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+}
+
+.oh-details-product-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--oh-text);
+}
+
+.oh-details-product-code {
+  margin-top: 2px;
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-details-product-label {
+  margin-top: 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #92400e;
+}
+
+.oh-details-product-producer {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--oh-text);
+}
+
+.oh-details-product-meta {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-journey-title {
+  margin: 18px 0 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--oh-text);
+}
+
+.oh-journey {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.oh-journey-step {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+/* The line joining one step's dot to the next. */
+.oh-journey-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background: #e2c992;
+}
+
+.oh-journey-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.oh-journey-card {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: 12px;
+}
+
+.oh-journey-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--oh-text);
+}
+
+.oh-journey-head span {
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-journey-line {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--oh-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.oh-journey-line em {
+  font-style: normal;
+  color: var(--oh-forest);
+  font-weight: 600;
+}
+
+.oh-journey-step.end .oh-journey-dot {
+  background: transparent;
+  border: 2px dashed #e2c992;
+}
+
+.oh-journey-step.end.done .oh-journey-dot {
+  background: var(--oh-green);
+  border: none;
+}
+
+.oh-journey-end {
+  align-self: center;
+  font-size: 0.82rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-journey-step.end.done .oh-journey-end {
+  color: var(--oh-badge-farmer-text);
+  font-weight: 600;
+}
+
+.oh-journey-map {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--oh-radius-md);
+  border: 1.5px solid #e2c992;
+  background: #fdf1dc;
+  color: var(--oh-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+/* ---------- Laptop ---------- */
+@media (min-width: 1024px) {
+  .oh-history-page {
+    max-width: 760px;
+  }
+
+  .oh-history-body {
+    padding: 26px 32px;
+  }
+
+  .oh-details-page {
+    max-width: 640px;
+  }
+
+  .oh-details-body {
+    padding: 28px 36px;
+  }
+}

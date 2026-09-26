@@ -209,6 +209,17 @@
   margin-bottom: 6px;
 }
 
+.oh-home-recent-all {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--oh-forest);
+  text-decoration: none;
+}
+
+.oh-home-recent-all:hover {
+  text-decoration: underline;
+}
+
 .oh-home-recent-title {
   font-size: 0.95rem;
   font-weight: 700;

@@ -15,8 +15,9 @@ const UserLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // Home and the scan screens carry their own header (per the mobile design), so skip the phone top bar there.
-  const showMobileTopbar = pathname !== "/home" && !pathname.startsWith("/scan");
+  // Home, the scan screens and History carry their own header (per the mobile design), so skip the phone top bar there.
+  const showMobileTopbar =
+    pathname !== "/home" && !pathname.startsWith("/scan") && !pathname.startsWith("/history");
 
   const handleLogout = () => {
     dispatch(logout());
@@ -80,7 +81,11 @@ const UserLayout = () => {
         </SidebarIcon>
       </NavLink>
 
-      <span className="oh-sidebar-item disabled" title="History (coming soon)">
+      <NavLink
+        to="/history"
+        className={({ isActive }) => `oh-sidebar-item ${isActive ? "active" : ""}`}
+        title="History"
+      >
         <SidebarIcon>
           <path
             d="M12 8v5l3 2"
@@ -96,7 +101,7 @@ const UserLayout = () => {
             strokeWidth="1.8"
           />
         </SidebarIcon>
-      </span>
+      </NavLink>
 
       <NavLink
         to="/images"

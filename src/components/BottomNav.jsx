@@ -49,7 +49,7 @@ const icons = {
 const items = [
   { to: '/home', label: 'Home', icon: 'home' },
   { to: '/scan', label: 'Scan', icon: 'scan' },
-  { to: '/home?tab=history', label: 'History', icon: 'history', disabled: true },
+  { to: '/history', label: 'History', icon: 'history' },
   { to: '/images', label: 'Images', icon: 'images' },
   { to: '/qr-stickers', label: 'QR', icon: 'qr' },
   { to: '/profile', label: 'Profile', icon: 'profile' },

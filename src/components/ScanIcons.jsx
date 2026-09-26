@@ -107,3 +107,46 @@ export const UndoIcon = ({ size }) => (
     <path d="M5 11.5h9a5 5 0 0 1 0 10h-2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </Svg>
 );
+
+export const CameraIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.4-2h5.6l1.4 2h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-9Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <circle cx="12" cy="13" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+  </Svg>
+);
+
+export const FlagIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M5.5 21V4.5M5.5 5h11l-2 4 2 4h-11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const PinIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.8" />
+  </Svg>
+);
+
+export const UserIcon = ({ size }) => (
+  <Svg size={size}>
+    <circle cx="12" cy="8" r="3.6" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M4.5 20c1.3-3.6 4.3-5.5 7.5-5.5s6.2 1.9 7.5 5.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </Svg>
+);
+
+export const ShareIcon = ({ size }) => (
+  <Svg size={size}>
+    <circle cx="17.5" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+    <circle cx="6.5" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+    <circle cx="17.5" cy="18.5" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+    <path d="m8.7 10.8 6.6-4M8.7 13.2l6.6 4" stroke="currentColor" strokeWidth="1.8" />
+  </Svg>
+);
+
+export const MapIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M3.5 6.5 9 4l6 2.5 5.5-2.5v13.5L15 20l-6-2.5-5.5 2.5V6.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <path d="M9 4v13.5M15 6.5V20" stroke="currentColor" strokeWidth="1.8" />
+  </Svg>
+);
