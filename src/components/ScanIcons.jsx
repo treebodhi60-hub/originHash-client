@@ -85,3 +85,25 @@ export const HomeIcon = ({ size }) => (
     <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
   </Svg>
 );
+
+export const EyeIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+  </Svg>
+);
+
+export const WarningIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M12 4 2.8 19.5h18.4L12 4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <path d="M12 10v4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <circle cx="12" cy="17" r="1.1" fill="currentColor" />
+  </Svg>
+);
+
+export const UndoIcon = ({ size }) => (
+  <Svg size={size}>
+    <path d="M9 7 4.5 11.5 9 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5 11.5h9a5 5 0 0 1 0 10h-2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </Svg>
+);

@@ -3,16 +3,26 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
-import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon } from '../components/ScanIcons.jsx';
+import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon, UndoIcon } from '../components/ScanIcons.jsx';
 import { formatScanTime } from '../utils/format';
 import '../styles/app-shell.css';
 import '../styles/home.css';
 
+const RECORDED = { label: 'Recorded', tone: 'neutral', icon: <BoxIcon size={16} /> };
+const AUTHENTIC = { label: 'Authentic', tone: 'success', icon: <CheckIcon size={16} /> };
+const FAILED = { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> };
+const NOT_VERIFIED = { label: 'Not verified', tone: 'muted', icon: <UndoIcon size={16} /> };
+
 const STATUS = {
-  recorded: { label: 'Recorded', tone: 'neutral', icon: <BoxIcon size={16} /> },
-  authentic: { label: 'Authentic', tone: 'success', icon: <CheckIcon size={16} /> },
-  not_found: { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> },
-  invalid: { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> },
+  SCANNED: RECORDED,
+  MATCHED: AUTHENTIC,
+  AUTHENTIC,
+  UNMATCHED: FAILED,
+  NOT_FOUND: FAILED,
+  INVALID: FAILED,
+  ALREADY_VIEWED: FAILED,
+  ROLLED_BACK: NOT_VERIFIED,
+  PENDING: NOT_VERIFIED,
 };
 
 const StatTile = ({ label, value, tone = 'plain' }) => (
@@ -106,7 +116,7 @@ const UserHome = () => {
         {recent.length > 0 && (
           <ul className="oh-home-recent-list">
             {recent.map((scan) => {
-              const s = STATUS[scan.result];
+              const s = STATUS[scan.result] || NOT_VERIFIED;
               return (
                 <li key={scan.id} className="oh-home-recent-row">
                   <span className={`oh-home-recent-icon ${s.tone}`}>{s.icon}</span>

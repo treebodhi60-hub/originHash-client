@@ -258,6 +258,11 @@
   color: var(--oh-forest);
 }
 
+.oh-home-recent-icon.muted {
+  background: var(--oh-badge-consumer-bg);
+  color: var(--oh-text-muted);
+}
+
 .oh-home-recent-text {
   flex: 1;
   min-width: 0;
@@ -296,6 +301,10 @@
 
 .oh-home-recent-status.neutral {
   color: var(--oh-forest);
+}
+
+.oh-home-recent-status.muted {
+  color: var(--oh-text-muted);
 }
 
 .oh-home-recent-empty {

@@ -10,6 +10,7 @@ import Profile from "./pages/Profile.jsx";
 import UserHome from "./pages/UserHome.jsx";
 import Scan from "./pages/Scan.jsx";
 import ScanResult from "./pages/ScanResult.jsx";
+import ScanCompare from "./pages/ScanCompare.jsx";
 import UserLayout from "./pages/UserLayout.jsx";
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
@@ -61,6 +62,7 @@ function App() {
       >
         <Route path="/home" element={<UserHome />} />
         <Route path="/scan" element={<Scan />} />
+        <Route path="/scan/compare" element={<ScanCompare />} />
         <Route path="/scan/result" element={<ScanResult />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/images" element={<ImageStock />} />
@@ -81,6 +83,7 @@ function App() {
         <Route path="images" element={<ImageStock />} />
         <Route path="qr-stickers" element={<QrStickers />} />
         <Route path="scan" element={<Scan />} />
+        <Route path="scan/compare" element={<ScanCompare />} />
         <Route path="scan/result" element={<ScanResult />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route index element={<Navigate to="users" replace />} />

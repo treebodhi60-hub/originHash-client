@@ -5,14 +5,18 @@ import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
 import {
   ArrowLeftIcon,
+  BoxIcon,
   CheckIcon,
   CrossIcon,
+  EyeIcon,
   FlashIcon,
   ImageIcon,
   KeyboardIcon,
   QrIcon,
   ShieldIcon,
+  WarningIcon,
 } from '../components/ScanIcons.jsx';
+import useRollbackOnLeave, { rollBackScan } from '../hooks/useRollbackOnLeave';
 import { createQrDecoder, drawToCanvas, extractCode } from '../utils/qr';
 import '../styles/app-shell.css';
 import '../styles/scan.css';
@@ -33,7 +37,7 @@ const ACTIONS = {
 const HOW_IT_WORKS = [
   'Hold the product QR steady inside the frame until it is captured.',
   'Tap Scan to record to log that the product has reached you.',
-  "Or tap Verify to authenticate to check that it's genuine.",
+  "Or tap Verify to authenticate to see the product's secret image once and confirm it matches.",
 ];
 
 const CAMERA_MESSAGES = {
@@ -108,6 +112,9 @@ const Scan = () => {
   const [captured, setCaptured] = useState(null); // { code } once a QR is read; code is null if it isn't ours
   const [busy, setBusy] = useState(null); // the action being sent: 'record' | 'verify'
   const [notice, setNotice] = useState('');
+  const [verifying, setVerifying] = useState(null); // { scan, product } while "Ready to see the image?" is open
+  const [revealing, setRevealing] = useState(false);
+  const [sheetError, setSheetError] = useState('');
   const [photoError, setPhotoError] = useState('');
   const [codeFormOpen, setCodeFormOpen] = useState(false);
   const [manualCode, setManualCode] = useState('');
@@ -127,6 +134,10 @@ const Scan = () => {
   const mountedRef = useRef(true);
   const resumeOnShowRef = useRef(false);
   const repeatGuardRef = useRef({ raw: null, until: 0 });
+  const showImageBtnRef = useRef(null);
+  // The PENDING verification this page still owns; leaving the page rolls it back.
+  const openScanIdRef = useRef(null);
+  useRollbackOnLeave(openScanIdRef);
 
   const getDecoder = () => {
     decoderRef.current ??= createQrDecoder().catch((err) => {
@@ -252,13 +263,54 @@ const Scan = () => {
     try {
       const position = action === 'record' ? await getLocation() : null;
       const { data } = await api.post('/scans', { code: captured.code, action, ...position });
-      if (!mountedRef.current) return;
-      navigate(`${scanPath}/result`, { state: { action, scan: data.scan, product: data.product } });
+      const pending = data.scan.result === 'PENDING';
+      if (!mountedRef.current) {
+        if (pending) rollBackScan(data.scan.id);
+        return;
+      }
+      if (pending) {
+        // A real sticker: ask before revealing its once-only image.
+        openScanIdRef.current = data.scan.id;
+        setBusy(null);
+        setSheetError('');
+        setVerifying({ scan: data.scan, product: data.product });
+        return;
+      }
+      navigate(`${scanPath}/result`, { state: data });
     } catch (err) {
       if (!mountedRef.current) return;
       setBusy(null);
       setNotice(err.response?.data?.message || "Couldn't reach OriginHash. Check your connection and try again.");
     }
+  };
+
+  const showImage = async () => {
+    if (revealing) return;
+    setRevealing(true);
+    setSheetError('');
+    try {
+      const { data } = await api.post(`/scans/${verifying.scan.id}/reveal`);
+      if (!mountedRef.current) return;
+      openScanIdRef.current = null; // the Compare screen owns the open verification now
+      navigate(`${scanPath}/compare`, { state: data });
+    } catch (err) {
+      if (!mountedRef.current) return;
+      const data = err.response?.data;
+      if (data?.scan?.result === 'ALREADY_VIEWED') {
+        openScanIdRef.current = null;
+        navigate(`${scanPath}/result`, { state: data });
+        return;
+      }
+      setRevealing(false);
+      setSheetError(data?.message || "Couldn't open the image. Check your connection and try again.");
+    }
+  };
+
+  const notNow = () => {
+    const scanId = openScanIdRef.current;
+    openScanIdRef.current = null;
+    if (scanId) rollBackScan(scanId);
+    navigate(homePath);
   };
 
   const goBack = () => {
@@ -347,6 +399,10 @@ const Scan = () => {
     if (captured?.code) recordBtnRef.current?.focus();
   }, [captured]);
 
+  useEffect(() => {
+    if (verifying) showImageBtnRef.current?.focus();
+  }, [verifying]);
+
   const cameraMessage = CAMERA_MESSAGES[camera];
   let hint = 'Place the QR code within the frame to scan';
   if (captured?.code) hint = 'QR captured — choose what to do with this product';
@@ -369,7 +425,7 @@ const Scan = () => {
             <button type="button" className="oh-scan-icon-btn" onClick={goBack} aria-label="Back">
               <ArrowLeftIcon size={20} />
             </button>
-            <h1 className="oh-scan-title">Scan QR code</h1>
+            <h1 className="oh-scan-title">{verifying ? 'Verify product' : 'Scan QR code'}</h1>
             {torchSupported ? (
               <button
                 type="button"
@@ -539,6 +595,53 @@ const Scan = () => {
           </div>
         </aside>
       </div>
+
+      {verifying && (
+        // The nav bar stays usable above this layer; leaving that way rolls the verification back.
+        <div className="oh-verify-layer">
+          <div className="oh-verify-backdrop" aria-hidden="true" />
+          <section className="oh-verify-sheet" role="dialog" aria-labelledby="oh-verify-title">
+            <span className="oh-verify-handle" aria-hidden="true" />
+            <span className="oh-verify-eye">
+              <EyeIcon size={24} />
+            </span>
+            <h2 id="oh-verify-title" className="oh-verify-title">
+              Ready to see the image?
+            </h2>
+            <p className="oh-verify-text">
+              We'll reveal the secret product image so you can compare it with the item in your hand.
+            </p>
+            <div className="oh-verify-warning">
+              <WarningIcon size={16} />
+              <span>This can be viewed only once. Keep the product with you before continuing.</span>
+            </div>
+            <div className="oh-verify-product">
+              <BoxIcon size={16} />
+              <span>
+                {verifying.product.productName} · {verifying.product.code}
+              </span>
+            </div>
+            {sheetError && (
+              <p className="oh-verify-error" role="alert">
+                {sheetError}
+              </p>
+            )}
+            <button
+              ref={showImageBtnRef}
+              type="button"
+              className="oh-verify-show"
+              onClick={showImage}
+              disabled={revealing}
+            >
+              <EyeIcon size={18} />
+              {revealing ? 'Opening image…' : 'Yes, show the image'}
+            </button>
+            <button type="button" className="oh-verify-back" onClick={notNow} disabled={revealing}>
+              Not now, go back
+            </button>
+          </section>
+        </div>
+      )}
     </div>
   );
 };
