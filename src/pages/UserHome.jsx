@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
+import { MenuButton } from '../components/MobileMenu.jsx';
+import { LoadingState } from '../components/Loader.jsx';
 import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon, UndoIcon } from '../components/ScanIcons.jsx';
 import { formatScanTime } from '../utils/format';
 import { scanRoutes } from '../utils/scanRoutes';
@@ -36,6 +38,8 @@ const StatTile = ({ label, value, tone = 'plain' }) => (
 const UserHome = () => {
   const { user } = useSelector((state) => state.auth);
   const paths = scanRoutes(user);
+  // From the layout: opens the phone ☰ menu (this page hides the layout's top bar).
+  const { openMenu } = useOutletContext() || {};
   const [summary, setSummary] = useState(null);
   const [status, setStatus] = useState('loading');
 
@@ -63,9 +67,12 @@ const UserHome = () => {
     <div className="oh-home">
       <section className="oh-home-hero">
         <div className="oh-home-hero-top">
-          <div>
-            <div className="oh-home-hero-greeting">Welcome back</div>
-            <h1 className="oh-home-hero-name">{user?.name || 'there'}</h1>
+          <div className="oh-home-hero-lead">
+            {openMenu && <MenuButton onClick={openMenu} />}
+            <div>
+              <div className="oh-home-hero-greeting">Welcome back</div>
+              <h1 className="oh-home-hero-name">{user?.name || 'there'}</h1>
+            </div>
           </div>
           <span className="oh-home-hero-logo" title="OriginHash">
             <BrandLogo size={22} />
@@ -110,7 +117,7 @@ const UserHome = () => {
           </Link>
         </div>
 
-        {status === 'loading' && <div className="oh-home-recent-empty">Loading your scans…</div>}
+        {status === 'loading' && <LoadingState className="oh-home-recent-empty" label="Loading your scans…" />}
         {status === 'failed' && (
           <div className="oh-home-recent-empty">Couldn't load your scans right now. Please try again later.</div>
         )}

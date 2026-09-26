@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
+import { LoadingState } from '../components/Loader.jsx';
 import JourneySection, { hasPlaceNames, productLine } from '../components/JourneySection.jsx';
 import {
   ArrowLeftIcon,
@@ -153,7 +154,7 @@ const ScanDetails = () => {
               {shareNote}
             </p>
           )}
-          {status === 'loading' && <div className="oh-history-empty">Loading…</div>}
+          {status === 'loading' && <LoadingState className="oh-history-empty" label="Loading scan…" />}
           {status === 'missing' && <div className="oh-history-empty">This scan wasn't found.</div>}
           {status === 'failed' && <div className="oh-history-empty">Couldn't load this scan. Please try again later.</div>}
 

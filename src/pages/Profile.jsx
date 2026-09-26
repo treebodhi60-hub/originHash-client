@@ -163,6 +163,7 @@ import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { updateProfile, logout } from "../store/authSlice";
+import { Spinner } from "../components/Loader.jsx";
 import "../styles/app-shell.css";
 
 const USER_TYPES = [
@@ -279,7 +280,7 @@ const Profile = () => {
                     }
                   }}
                 >
-                  {photoSaving ? "…" : "📷"}
+                  {photoSaving ? <Spinner className="solo" /> : "📷"}
                 </div>
                 <input
                   ref={fileInputRef}
@@ -365,7 +366,12 @@ const Profile = () => {
                           type="button"
                           disabled={saving}
                         >
-                          {saving ? "Saving…" : "Save"}
+                          {saving ? (
+                            <>
+                              <Spinner />
+                              Saving…
+                            </>
+                          ) : "Save"}
                         </button>
                       </div>
                     </div>

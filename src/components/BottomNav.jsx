@@ -46,13 +46,17 @@ const icons = {
   ),
 };
 
+// Phones show these four in the bottom bar; the other pages are in the ☰ menu (userMenuItems).
 const items = [
   { to: '/home', label: 'Home', icon: 'home' },
   { to: '/scan', label: 'Scan', icon: 'scan' },
   { to: '/history', label: 'History', icon: 'history' },
-  { to: '/images', label: 'Images', icon: 'images' },
-  { to: '/qr-stickers', label: 'QR', icon: 'qr' },
   { to: '/profile', label: 'Profile', icon: 'profile' },
+];
+
+export const userMenuItems = [
+  { to: '/images', label: 'Image stock', icon: icons.images },
+  { to: '/qr-stickers', label: 'QR stickers', icon: icons.qr },
 ];
 
 const BottomNav = () => (

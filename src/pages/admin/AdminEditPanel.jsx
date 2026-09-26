@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addAdmin, editAdmin } from '../../store/adminsSlice';
+import { Spinner } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 
 const AdminEditPanel = ({ mode, admin, onClose }) => {
@@ -138,7 +139,14 @@ const AdminEditPanel = ({ mode, admin, onClose }) => {
               Cancel
             </button>
             <button className="oh-btn-save" type="submit" disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? (
+                <>
+                  <Spinner />
+                  Saving…
+                </>
+              ) : (
+                'Save'
+              )}
             </button>
           </div>
         </form>

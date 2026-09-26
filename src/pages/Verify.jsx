@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios';
+import { LoadingState } from '../components/Loader.jsx';
 import '../styles/verify.css';
 
 const Verify = () => {
@@ -29,7 +30,7 @@ const Verify = () => {
 
   return (
     <div className="ov-page">
-      {status === 'loading' && <div className="ov-message">Loading…</div>}
+      {status === 'loading' && <LoadingState className="ov-message" label="Loading…" />}
 
       {status === 'error' && (
         <div className="ov-card">

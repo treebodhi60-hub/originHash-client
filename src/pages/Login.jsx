@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import BrandPanel from '../components/BrandPanel.jsx';
+import { Spinner } from '../components/Loader.jsx';
 import { sendOtp, adminLogin, clearError } from '../store/authSlice';
 import '../styles/auth.css';
 
@@ -107,7 +108,12 @@ const Login = () => {
               </div>
 
               <button className="oh-btn-primary" type="submit" disabled={status === 'loading'}>
-                {status === 'loading' ? 'Sending OTP…' : 'Send OTP'}
+                {status === 'loading' ? (
+                  <>
+                    <Spinner />
+                    Sending OTP…
+                  </>
+                ) : 'Send OTP'}
               </button>
             </form>
           ) : (
@@ -136,7 +142,12 @@ const Login = () => {
               </div>
 
               <button className="oh-btn-primary" type="submit" disabled={status === 'loading'}>
-                {status === 'loading' ? 'Logging in…' : 'Log in'}
+                {status === 'loading' ? (
+                  <>
+                    <Spinner />
+                    Logging in…
+                  </>
+                ) : 'Log in'}
               </button>
             </form>
           )}

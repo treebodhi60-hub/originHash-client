@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile, logout } from '../../store/authSlice';
+import { Spinner } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 import '../../styles/app-shell.css';
 
@@ -93,7 +94,14 @@ const AdminProfile = () => {
                 Cancel
               </button>
               <button className="oh-btn-save" onClick={handleSave} type="button" disabled={saving}>
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? (
+                  <>
+                    <Spinner />
+                    Saving…
+                  </>
+                ) : (
+                  'Save'
+                )}
               </button>
             </div>
           </div>

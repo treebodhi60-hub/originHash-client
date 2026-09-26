@@ -1,7 +1,13 @@
 /* ---------- QR scanner: single column on phones, scanner + side panel on laptops ---------- */
+/* The scanner card reaches down to the bottom nav: the page fills the screen less the
+   layout's 24px top padding and the 110px kept free for the nav. */
 .oh-scan-page {
   max-width: 480px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 134px);
+  min-height: calc(100dvh - 134px);
 }
 
 /* ---------- Brand header ---------- */
@@ -38,18 +44,27 @@
 }
 
 .oh-scan-layout {
+  flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
 }
 
 /* ---------- Dark scanner panel ---------- */
+/* A column whose camera view takes up whatever height is left. */
 .oh-scan-panel {
+  display: flex;
+  flex-direction: column;
   background: var(--oh-forest);
   color: var(--oh-white);
   border-radius: var(--oh-radius-lg);
   padding: 12px 14px 16px;
   box-shadow: var(--oh-shadow);
+}
+
+/* The app-wide dark-green focus ring would vanish on this panel. */
+.oh-scan-panel :focus-visible {
+  outline-color: var(--oh-gold);
 }
 
 .oh-scan-toolbar {
@@ -97,11 +112,19 @@
 /* ---------- Viewport ---------- */
 .oh-scan-viewport {
   position: relative;
-  aspect-ratio: 1 / 1;
+  flex: 1;
+  min-height: 260px;
   background: #08130f;
   border: 1.5px solid rgba(255, 255, 255, 0.5);
   border-radius: 16px;
   overflow: hidden;
+}
+
+/* Short phones: let the camera view give up some height so the whole card fits above the nav. */
+@media (max-width: 1023.98px) and (max-height: 700px) {
+  .oh-scan-viewport {
+    min-height: 190px;
+  }
 }
 
 .oh-scan-video,
@@ -395,11 +418,9 @@
   text-align: center;
 }
 
-/* ---------- Side column ---------- */
+/* ---------- Side column ("How it works") — laptops only ---------- */
 .oh-scan-side {
-  display: grid;
-  gap: 14px;
-  align-content: start;
+  display: none;
 }
 
 .oh-scan-card {
@@ -415,11 +436,6 @@
   letter-spacing: 0.5px;
   color: var(--oh-text-muted);
   font-weight: 700;
-}
-
-/* "How it works" only earns its space on laptops. */
-.oh-scan-howto {
-  display: none;
 }
 
 .oh-scan-card-title {
@@ -439,6 +455,22 @@
   margin: 6px 0;
 }
 
+/* ---------- "Can't scan?" footer inside the scanner panel ---------- */
+.oh-scan-alt {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.oh-scan-alt-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #9fbdb4;
+  text-align: center;
+}
+
 .oh-scan-alt-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -451,25 +483,33 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 10px;
-  border-radius: var(--oh-radius-sm);
-  border: 1.5px solid var(--oh-border);
-  background: var(--oh-white);
-  color: var(--oh-forest);
+  min-height: 46px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: #e3eeea;
   font-weight: 600;
   font-size: 0.85rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.oh-scan-alt-btn svg {
+  flex-shrink: 0;
+  color: var(--oh-gold);
 }
 
 .oh-scan-alt-btn:hover,
 .oh-scan-alt-btn.active {
-  border-color: var(--oh-forest);
-  background: #eef6f0;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(201, 164, 100, 0.6);
 }
 
 .oh-scan-alt-error {
-  color: var(--oh-red);
+  color: #ffb4a8;
   font-size: 0.8rem;
   margin: 10px 0 0;
+  text-align: center;
 }
 
 .oh-scan-code-form {
@@ -480,7 +520,7 @@
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--oh-text-muted);
+  color: #9fbdb4;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-bottom: 6px;
@@ -494,8 +534,10 @@
 .oh-scan-code-row input {
   flex: 1;
   min-width: 0;
-  border: 1.5px solid var(--oh-border);
-  border-radius: var(--oh-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--oh-white);
   padding: 11px 12px;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -503,8 +545,13 @@
 }
 
 .oh-scan-code-row input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
   text-transform: none;
   letter-spacing: 0;
+}
+
+.oh-scan-code-row input:focus {
+  border-color: var(--oh-gold);
 }
 
 .oh-scan-btn {
@@ -519,9 +566,11 @@
   border: 1.5px solid transparent;
 }
 
+/* "Use code", on the dark scanner panel. */
 .oh-scan-btn.primary {
-  background: var(--oh-forest);
-  color: var(--oh-white);
+  background: var(--oh-gold);
+  color: var(--oh-forest);
+  border-radius: 12px;
 }
 
 .oh-scan-btn.primary:disabled {
@@ -856,18 +905,7 @@
   text-align: left;
 }
 
-.oh-compare-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--oh-badge-farmer-text);
-  font-weight: 700;
-  font-size: 0.92rem;
-}
-
 .oh-compare-card {
-  margin-top: 14px;
   padding: 10px;
   background: var(--oh-white);
   border: 1px solid var(--oh-border);
@@ -998,6 +1036,36 @@
   text-align: center;
   font-size: 0.82rem;
   color: var(--oh-text-muted);
+}
+
+/* Phones: the compare card reaches down to the bottom nav (the page fills the screen less the
+   layout's 24px top padding and the 110px kept for the nav), and the question with its
+   Matched / Unmatched answers sits at the card's foot. Tablets keep the natural height — on
+   their tall screens the stretch would open a large empty gap. */
+@media (max-width: 699.98px) {
+  .oh-compare-page {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 134px);
+    min-height: calc(100dvh - 134px);
+  }
+
+  .oh-compare-page .oh-result-shell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .oh-compare-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .oh-compare-question {
+    margin-top: auto;
+    padding-top: 16px;
+  }
 }
 
 .oh-report-form {
@@ -1171,9 +1239,11 @@
 
 /* ---------- Laptop ---------- */
 @media (min-width: 1024px) {
+  /* Fill the window less the layout's 32px top and 50px bottom padding (no bottom nav here). */
   .oh-scan-page {
     max-width: 1120px;
     margin: 0;
+    min-height: calc(100vh - 82px);
   }
 
   .oh-scan-brand {
@@ -1193,7 +1263,6 @@
   .oh-scan-layout {
     grid-template-columns: minmax(0, 1fr) 340px;
     gap: 24px;
-    align-items: start;
   }
 
   .oh-scan-panel {
@@ -1210,9 +1279,7 @@
   }
 
   .oh-scan-viewport {
-    aspect-ratio: 16 / 10;
-    max-height: calc(100vh - 300px);
-    min-height: 300px;
+    min-height: 320px;
   }
 
   .oh-scan-frame {
@@ -1230,18 +1297,39 @@
   }
 
   .oh-scan-side {
+    display: grid;
+    gap: 14px;
+    align-self: start;
     position: sticky;
     top: 24px;
+  }
+
+  /* "Can't scan?" on one line: label left, buttons right; errors and the code form below. */
+  .oh-scan-alt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 16px;
+  }
+
+  .oh-scan-alt-label {
+    text-align: left;
+  }
+
+  .oh-scan-alt-actions {
+    margin: 0 0 0 auto;
+    width: min(100%, 420px);
+  }
+
+  .oh-scan-alt-error,
+  .oh-scan-code-form {
+    flex-basis: 100%;
   }
 
   .oh-scan-card {
     border-radius: var(--oh-radius-lg);
     padding: 18px 20px;
     box-shadow: var(--oh-shadow);
-  }
-
-  .oh-scan-howto {
-    display: block;
   }
 
   .oh-result-page {
@@ -1303,4 +1391,9 @@
   .oh-verify-handle {
     display: none;
   }
+}
+
+/* Spinner over the compare image until it has loaded (components/Loader.jsx). */
+.oh-compare-image {
+  position: relative;
 }

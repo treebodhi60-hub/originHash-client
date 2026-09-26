@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
+import { Spinner } from '../components/Loader.jsx';
 import {
   ArrowLeftIcon,
   BoxIcon,
@@ -480,6 +481,15 @@ const Scan = () => {
               </div>
             )}
 
+            {/* A typed-in code has no camera frame to show, so the viewport gets an icon instead of going black. */}
+            {!busy && captured && !frozen && (
+              <div className="oh-scan-overlay" aria-hidden="true">
+                <span className="oh-scan-placeholder">
+                  <KeyboardIcon size={40} />
+                </span>
+              </div>
+            )}
+
             {!busy && captured && (
               <div className={`oh-scan-captured ${captured.code ? 'ok' : 'bad'}`} role="status">
                 <span className="oh-scan-captured-icon">
@@ -543,21 +553,10 @@ const Scan = () => {
               {notice}
             </p>
           )}
-        </section>
 
-        <aside className="oh-scan-side">
-          <div className="oh-scan-card oh-scan-howto">
-            <div className="oh-scan-card-label">How it works</div>
-            <h2 className="oh-scan-card-title">Scan, then choose</h2>
-            <ol className="oh-scan-steps">
-              {HOW_IT_WORKS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </div>
-
-          <div className="oh-scan-card oh-scan-alt">
-            <div className="oh-scan-card-label">Can't scan?</div>
+          {/* Fallbacks when the camera can't read the sticker: a photo of the QR, or its printed code. */}
+          <div className="oh-scan-alt">
+            <div className="oh-scan-alt-label">Can't scan?</div>
             <div className="oh-scan-alt-actions">
               <button type="button" className="oh-scan-alt-btn" onClick={() => fileInputRef.current?.click()}>
                 <ImageIcon size={18} />
@@ -597,6 +596,19 @@ const Scan = () => {
                 {codeError && <p className="oh-scan-alt-error">{codeError}</p>}
               </form>
             )}
+          </div>
+        </section>
+
+        {/* Laptops only: a short guide beside the scanner. */}
+        <aside className="oh-scan-side">
+          <div className="oh-scan-card">
+            <div className="oh-scan-card-label">How it works</div>
+            <h2 className="oh-scan-card-title">Scan, then choose</h2>
+            <ol className="oh-scan-steps">
+              {HOW_IT_WORKS.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
           </div>
         </aside>
       </div>
@@ -638,7 +650,7 @@ const Scan = () => {
               onClick={showImage}
               disabled={revealing}
             >
-              <EyeIcon size={18} />
+              {revealing ? <Spinner className="solo" /> : <EyeIcon size={18} />}
               {revealing ? 'Opening image…' : 'Yes, show the image'}
             </button>
             <button type="button" className="oh-verify-back" onClick={notNow} disabled={revealing}>

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
+import { LoadingState, Spinner } from '../components/Loader.jsx';
+import { MenuButton } from '../components/MobileMenu.jsx';
 import { CheckIcon, CrossIcon, PinIcon, UndoIcon } from '../components/ScanIcons.jsx';
 import { formatCoords, formatDateTimeShort, formatShortDate } from '../utils/format';
 import { scanRoutes } from '../utils/scanRoutes';
@@ -37,6 +39,8 @@ export const HISTORY_STATUS = {
 // The filter lives in the URL so coming back from a scan's details keeps it.
 const History = () => {
   const { user } = useSelector((state) => state.auth);
+  // From the layout: opens the phone ☰ menu (this page hides the layout's top bar).
+  const { openMenu } = useOutletContext() || {};
   const paths = scanRoutes(user);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -118,7 +122,7 @@ const History = () => {
 
       <div className="oh-result-shell oh-history-shell">
         <header className="oh-result-head oh-history-head">
-          <span className="oh-scan-icon-spacer" />
+          {openMenu ? <MenuButton onClick={openMenu} /> : <span className="oh-scan-icon-spacer" />}
           <h1 className="oh-result-title">Verification history</h1>
           <span className="oh-scan-icon-spacer" />
         </header>
@@ -130,7 +134,7 @@ const History = () => {
           </div>
 
           <div className="oh-history-panel">
-            {status === 'loading' && <div className="oh-history-empty">Loading your scans…</div>}
+            {status === 'loading' && <LoadingState className="oh-history-empty" label="Loading your scans…" />}
             {status === 'failed' && <div className="oh-history-empty">Couldn't load your scans. Please try again later.</div>}
             {status === 'ready' && scans.length === 0 && (
               <div className="oh-history-empty">
@@ -244,7 +248,12 @@ const History = () => {
 
           {hasMore && (
             <button type="button" className="oh-history-more" onClick={loadMore} disabled={loadingMore}>
-              {loadingMore ? 'Loading…' : 'Load more'}
+              {loadingMore ? (
+                <>
+                  <Spinner />
+                  Loading…
+                </>
+              ) : 'Load more'}
             </button>
           )}
         </div>

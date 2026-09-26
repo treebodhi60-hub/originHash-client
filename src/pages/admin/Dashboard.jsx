@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import api from '../../api/axios';
+import { LoadingState } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 
 const formatNumber = (n) => {
@@ -63,7 +64,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {status === 'loading' && <div className="oh-empty-state">Loading stats…</div>}
+      {status === 'loading' && <LoadingState label="Loading stats…" />}
       {status === 'failed' && <div className="oh-empty-state">Could not load dashboard stats.</div>}
 
       {stats && (

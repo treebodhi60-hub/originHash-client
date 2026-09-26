@@ -1352,3 +1352,33 @@
   font-size: 0.78rem;
   font-weight: 600;
 }
+
+/* ---------- Loaders in the admin pages ---------- */
+.oh-folder-card:disabled {
+  cursor: default;
+}
+
+.oh-folder-delete:disabled {
+  cursor: default;
+  color: var(--oh-red);
+}
+
+/* Room for the spinner while a full-size image downloads. */
+.oh-lightbox-image {
+  position: relative;
+}
+
+.oh-lightbox-image.loading {
+  min-width: min(80vw, 420px);
+  min-height: 280px;
+  background: var(--oh-cream);
+}
+
+.oh-lightbox-image.loading img {
+  position: absolute;
+  opacity: 0;
+}
+
+.oh-dropzone-icon .oh-loader {
+  color: var(--oh-forest);
+}

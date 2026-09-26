@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { scanRoutes } from '../../utils/scanRoutes';
 import { PROFILE_FIELD_LABELS } from '../../utils/profileFields';
 import UserHistoryPanel from './UserHistoryPanel.jsx';
+import { LoadingState, RefreshingNote, Spinner } from '../../components/Loader.jsx';
 import { fetchFolders } from '../../store/imageStockSlice';
 import {
   fetchCodes,
@@ -400,7 +401,19 @@ const GenerateTab = () => {
             className="oh-btn-generate"
             disabled={generating || checking || !form.folderId || Boolean(batchNoError)}
           >
-            {generating ? 'Generating…' : `⊞ Generate ${form.numberOfQrs || 0} stickers`}
+            {generating ? (
+              <>
+                <Spinner />
+                Generating {form.numberOfQrs || 0} stickers…
+              </>
+            ) : checking ? (
+              <>
+                <Spinner />
+                Checking batch no…
+              </>
+            ) : (
+              `⊞ Generate ${form.numberOfQrs || 0} stickers`
+            )}
           </button>
         </form>
 
@@ -488,7 +501,8 @@ const HistoryTab = () => {
         </select>
       </div>
 
-      {codesStatus === 'loading' && groups.length === 0 && <div className="oh-empty-state">Loading…</div>}
+      {codesStatus === 'loading' && groups.length === 0 && <LoadingState label="Loading generated QRs…" />}
+      {codesStatus === 'loading' && groups.length > 0 && <RefreshingNote />}
       {codesStatus !== 'loading' && groups.length === 0 && (
         <div className="oh-empty-state">No QR stickers generated yet.</div>
       )}

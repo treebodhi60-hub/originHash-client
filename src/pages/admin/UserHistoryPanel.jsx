@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import api from '../../api/axios';
 import { formatDate, formatDateTime } from '../../utils/format';
 import { PROFILE_FIELD_LABELS, formatProfileValue } from '../../utils/profileFields';
+import { LoadingState } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 
 const versionLabel = (version, isFirst) => {
@@ -88,7 +89,7 @@ const UserHistoryPanel = ({ userId, onClose }) => {
         </button>
 
         {error && <div className="oh-error">{error}</div>}
-        {!data && !error && <div className="oh-empty-state">Loading history…</div>}
+        {!data && !error && <LoadingState label="Loading history…" />}
 
         {user && (
           <>

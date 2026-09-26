@@ -1,0 +1,144 @@
+/* ---------- Phone menu: ☰ button + slide-in drawer (components/MobileMenu.jsx) ---------- */
+/* Sits on the dark green top bar, Home hero and History header. */
+.oh-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--oh-white);
+}
+
+.oh-menu-btn:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.oh-menu-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60; /* above the bottom nav */
+}
+
+.oh-menu-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 30, 26, 0.45);
+  animation: oh-menu-fade 0.2s ease;
+}
+
+.oh-menu-drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(300px, 84vw);
+  display: flex;
+  flex-direction: column;
+  padding: calc(14px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
+  animation: oh-menu-slide 0.22s ease;
+}
+
+.oh-menu-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.oh-menu-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--oh-gold);
+}
+
+.oh-menu-brand {
+  flex: 1;
+  font-family: var(--oh-font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.oh-menu-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--oh-white);
+}
+
+.oh-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.oh-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  color: #d7e6e1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+}
+
+.oh-menu-item:hover,
+.oh-menu-item:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.oh-menu-item.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--oh-white);
+}
+
+.oh-menu-logout {
+  margin-top: auto;
+  color: #f4b8ae;
+}
+
+@keyframes oh-menu-slide {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes oh-menu-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .oh-menu-btn,
+  .oh-menu-layer {
+    display: none;
+  }
+}

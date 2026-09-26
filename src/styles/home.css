@@ -478,3 +478,11 @@
     padding: 28px 16px 36px;
   }
 }
+
+/* ☰ menu button (phones) before the greeting. */
+.oh-home-hero-lead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}

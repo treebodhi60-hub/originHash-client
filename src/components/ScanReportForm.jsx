@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import api from '../api/axios';
 import { CameraIcon, CrossIcon, FlagIcon } from './ScanIcons.jsx';
 import { shrinkPhoto } from '../utils/photo';
+import { Spinner } from './Loader.jsx';
 
 const NOTE_MAX = 1000;
 
@@ -74,7 +75,7 @@ const ScanReportForm = ({ scanId, placeholder, onReported }) => {
             onClick={() => fileInputRef.current?.click()}
             disabled={preparing || sending}
           >
-            <CameraIcon size={18} />
+            {preparing ? <Spinner className="solo" /> : <CameraIcon size={18} />}
             {preparing ? 'Preparing photo…' : 'Take a pic or upload'}
           </button>
         )}
@@ -102,7 +103,7 @@ const ScanReportForm = ({ scanId, placeholder, onReported }) => {
       )}
 
       <button type="submit" className="oh-report-submit" disabled={sending || preparing}>
-        <FlagIcon size={16} />
+        {sending ? <Spinner className="solo" /> : <FlagIcon size={16} />}
         {sending ? 'Sending report…' : 'Submit report'}
       </button>
     </form>

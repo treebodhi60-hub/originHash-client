@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
+import { LoadingState } from '../components/Loader.jsx';
 import JourneySection, { hasPlaceNames } from '../components/JourneySection.jsx';
 import { ArrowLeftIcon } from '../components/ScanIcons.jsx';
 import '../styles/app-shell.css';
@@ -55,7 +56,7 @@ const ProductJourney = () => {
         </header>
 
         <div className="oh-result-body oh-details-body">
-          {status === 'loading' && <div className="oh-history-empty">Loading…</div>}
+          {status === 'loading' && <LoadingState className="oh-history-empty" label="Loading journey…" />}
           {status === 'missing' && <div className="oh-history-empty">This sticker wasn't found.</div>}
           {status === 'forbidden' && (
             <div className="oh-history-empty">

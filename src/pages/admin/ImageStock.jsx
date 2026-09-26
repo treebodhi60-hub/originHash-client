@@ -10,6 +10,7 @@ import {
   toggleImageBlock,
   clearRejected,
 } from '../../store/imageStockSlice';
+import { LoadingState, RefreshingNote, Spinner } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 
 const formatBytes = (bytes) => {
@@ -21,6 +22,15 @@ const formatBytes = (bytes) => {
 const formatDate = (iso) => {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+// Asked before deleting a sample folder, from its card or from inside it.
+const confirmFolderDelete = (folder) => {
+  const count = folder.imagesCount ?? 0;
+  return window.confirm(
+    `Delete ${folder.name} and its ${count} image${count === 1 ? '' : 's'}? ` +
+      "QR stickers already generated from it keep working. This can't be undone."
+  );
 };
 
 const NewFolderCard = ({ onCreate }) => {
@@ -68,7 +78,14 @@ const NewFolderCard = ({ onCreate }) => {
           Cancel
         </button>
         <button type="submit" className="oh-btn-save" disabled={saving}>
-          {saving ? 'Creating…' : 'Create'}
+          {saving ? (
+            <>
+              <Spinner />
+              Creating…
+            </>
+          ) : (
+            'Create'
+          )}
         </button>
       </div>
     </form>
@@ -76,33 +93,51 @@ const NewFolderCard = ({ onCreate }) => {
 };
 
 // `onDelete` is only passed for sample folders an admin can remove.
-const FolderCard = ({ folder, onOpen, onDelete }) => (
-  <div className="oh-folder-card-wrap">
-    <button type="button" className="oh-folder-card" onClick={() => onOpen(folder)}>
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.4l1.6 2h9A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Z"
-          stroke="var(--oh-forest)"
-          strokeWidth="1.5"
-        />
-      </svg>
-      <span className="oh-folder-name">{folder.name}</span>
-      <span className="oh-folder-count">{folder.imagesCount ?? 0} images</span>
-      {folder.isSample && <span className="oh-badge sample">Sample</span>}
-    </button>
-    {onDelete && (
+const FolderCard = ({ folder, onOpen, onDelete }) => {
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirmFolderDelete(folder)) return;
+    setDeleting(true);
+    const result = await onDelete(folder);
+    // On success the card leaves the list; otherwise it's usable again.
+    if (!result.ok) setDeleting(false);
+  };
+
+  return (
+    <div className="oh-folder-card-wrap" aria-busy={deleting}>
       <button
         type="button"
-        className="oh-folder-delete"
-        onClick={() => onDelete(folder)}
-        title="Delete this sample folder"
-        aria-label={`Delete ${folder.name}`}
+        className={`oh-folder-card ${deleting ? 'oh-is-busy' : ''}`}
+        onClick={() => onOpen(folder)}
+        disabled={deleting}
       >
-        ✕
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.4l1.6 2h9A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Z"
+            stroke="var(--oh-forest)"
+            strokeWidth="1.5"
+          />
+        </svg>
+        <span className="oh-folder-name">{folder.name}</span>
+        <span className="oh-folder-count">{deleting ? 'Deleting…' : `${folder.imagesCount ?? 0} images`}</span>
+        {folder.isSample && <span className="oh-badge sample">Sample</span>}
       </button>
-    )}
-  </div>
-);
+      {onDelete && (
+        <button
+          type="button"
+          className="oh-folder-delete"
+          onClick={handleDelete}
+          disabled={deleting}
+          title="Delete this sample folder"
+          aria-label={deleting ? `Deleting ${folder.name}` : `Delete ${folder.name}`}
+        >
+          {deleting ? <Spinner className="solo" /> : '✕'}
+        </button>
+      )}
+    </div>
+  );
+};
 
 const ImageCard = ({ image, showFolder, onToggleBlock, onView, canModerate }) => {
   const [toggling, setToggling] = useState(false);
@@ -156,10 +191,34 @@ const ImageCard = ({ image, showFolder, onToggleBlock, onView, canModerate }) =>
             onClick={handleToggleBlock}
             disabled={toggling}
           >
-            {toggling ? '…' : image.isBlocked ? 'Unblock' : 'Block'}
+            {toggling ? (
+              <>
+                <Spinner />
+                {image.isBlocked ? 'Unblocking…' : 'Blocking…'}
+              </>
+            ) : image.isBlocked ? (
+              'Unblock'
+            ) : (
+              'Block'
+            )}
           </button>
         </div>
       )}
+    </div>
+  );
+};
+
+// The full-size image, with a spinner in its place until it has downloaded.
+const LightboxImage = ({ image }) => {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className={`oh-lightbox-image ${loaded ? '' : 'loading'}`}>
+      {!loaded && (
+        <span className="oh-image-loading" role="status" aria-label="Loading image">
+          <Spinner className="solo lg" />
+        </span>
+      )}
+      <img src={image.url} alt={image.fileName} onLoad={() => setLoaded(true)} onError={() => setLoaded(true)} />
     </div>
   );
 };
@@ -172,7 +231,7 @@ const ImageViewModal = ({ image, onClose }) => {
         <button type="button" className="oh-panel-close oh-lightbox-close" onClick={onClose} aria-label="Close">
           ✕
         </button>
-        <img src={image.url} alt={image.fileName} />
+        <LightboxImage key={image.url} image={image} />
         <div className="oh-lightbox-meta">
           <div className="oh-image-name">{image.fileName}</div>
           <div className="oh-image-sub">
@@ -227,8 +286,10 @@ const UploadDropzone = ({ folderId, onUploaded }) => {
         onDragLeave={() => setDragActive(false)}
         onDrop={handleDrop}
       >
-        <div className="oh-dropzone-icon">⬆</div>
-        <div className="oh-dropzone-title">{uploading ? 'Uploading…' : 'Drag and drop images here'}</div>
+        <div className="oh-dropzone-icon">{uploading ? <Spinner className="solo lg" /> : '⬆'}</div>
+        <div className="oh-dropzone-title" role={uploading ? 'status' : undefined}>
+          {uploading ? 'Uploading and checking images…' : 'Drag and drop images here'}
+        </div>
         <div className="oh-dropzone-subtitle">
           JPG or PNG · at least 640×480 (either way round) and in sharp focus · duplicates are auto-rejected
         </div>
@@ -280,6 +341,7 @@ const FolderDetail = ({ folder, onBack, onDelete }) => {
   const [deleteError, setDeleteError] = useState('');
 
   const handleDelete = async () => {
+    if (!confirmFolderDelete(folder)) return;
     setDeleting(true);
     setDeleteError('');
     const result = await onDelete(folder);
@@ -295,9 +357,13 @@ const FolderDetail = ({ folder, onBack, onDelete }) => {
     dispatch(fetchImages({ folderId: folder.id }));
   }, [dispatch, folder.id]);
 
+  // Only this folder's images: the store can still hold another folder's (or all images) while
+  // this folder's are loading.
+  const folderImages = useMemo(() => images.filter((img) => img.folderId === folder.id), [images, folder.id]);
+
   const filtered = useMemo(
-    () => images.filter((img) => img.fileName.toLowerCase().includes(search.toLowerCase())),
-    [images, search]
+    () => folderImages.filter((img) => img.fileName.toLowerCase().includes(search.toLowerCase())),
+    [folderImages, search]
   );
 
   return (
@@ -315,7 +381,14 @@ const FolderDetail = ({ folder, onBack, onDelete }) => {
         {canModerate && folder.isSample && (
           <div className="oh-header-actions">
             <button type="button" className="oh-btn-block" onClick={handleDelete} disabled={deleting}>
-              {deleting ? 'Deleting…' : 'Delete sample folder'}
+              {deleting ? (
+                <>
+                  <Spinner />
+                  Deleting…
+                </>
+              ) : (
+                'Delete sample folder'
+              )}
             </button>
           </div>
         )}
@@ -334,7 +407,7 @@ const FolderDetail = ({ folder, onBack, onDelete }) => {
         />
       </div>
 
-      {imagesStatus === 'loading' && images.length === 0 && <div className="oh-empty-state">Loading images…</div>}
+      {imagesStatus === 'loading' && folderImages.length === 0 && <LoadingState label="Loading images…" />}
       {imagesStatus !== 'loading' && filtered.length === 0 && (
         <div className="oh-empty-state">No images in this folder yet.</div>
       )}
@@ -397,15 +470,8 @@ const ImageStock = () => {
     setNotice({ type: 'success', text: `${folder.name} created with ${added.length} images: ${categories}.${missing}`, folder });
   };
 
-  // Resolves to { ok, message }; a cancelled confirm is { ok: false } with no message.
+  // Called once the delete is confirmed; resolves to { ok, message }.
   const handleDeleteFolder = async (folder) => {
-    const count = folder.imagesCount ?? 0;
-    const question =
-      `Delete ${folder.name} and its ${count} image${count === 1 ? '' : 's'}? ` +
-      "QR stickers already generated from it keep working. This can't be undone.";
-    if (!window.confirm(question)) {
-      return { ok: false };
-    }
     const action = await dispatch(deleteFolder(folder.id));
     if (action.meta.requestStatus === 'fulfilled') {
       setNotice({ type: 'success', text: action.payload.message || `${folder.name} deleted.` });
@@ -486,7 +552,7 @@ const ImageStock = () => {
 
       {tab === 'folders' && (
         <>
-          {foldersStatus === 'loading' && folders.length === 0 && <div className="oh-empty-state">Loading folders…</div>}
+          {foldersStatus === 'loading' && folders.length === 0 && <LoadingState label="Loading folders…" />}
           <div className="oh-folder-grid">
             <NewFolderCard onCreate={handleCreateFolder} />
             {filteredFolders.map((folder) => (
@@ -503,7 +569,8 @@ const ImageStock = () => {
 
       {tab === 'pictures' && (
         <>
-          {imagesStatus === 'loading' && images.length === 0 && <div className="oh-empty-state">Loading images…</div>}
+          {imagesStatus === 'loading' && images.length === 0 && <LoadingState label="Loading images…" />}
+          {imagesStatus === 'loading' && images.length > 0 && <RefreshingNote label="Loading all images…" />}
           {imagesStatus !== 'loading' && filteredImages.length === 0 && (
             <div className="oh-empty-state">No images uploaded yet.</div>
           )}

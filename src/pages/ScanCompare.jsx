@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
 import ScanReportForm from '../components/ScanReportForm.jsx';
-import { ArrowLeftIcon, CheckIcon, CrossIcon, ImageIcon, ShieldIcon } from '../components/ScanIcons.jsx';
+import { Spinner } from '../components/Loader.jsx';
+import { ArrowLeftIcon, CheckIcon, CrossIcon, ImageIcon } from '../components/ScanIcons.jsx';
 import useRollbackOnLeave, { rollBackScan } from '../hooks/useRollbackOnLeave';
 import { formatDateTime } from '../utils/format';
 import { scanRoutes } from '../utils/scanRoutes';
@@ -26,6 +27,7 @@ const ScanCompare = () => {
   const [error, setError] = useState('');
   const [imageFailed, setImageFailed] = useState(false);
   const [imageAttempt, setImageAttempt] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [reporting, setReporting] = useState(false);
   const reportRef = useRef(null);
   const openScanIdRef = useRef(scan?.result === 'PENDING' ? scan.id : null);
@@ -65,6 +67,7 @@ const ScanCompare = () => {
 
   const retryImage = () => {
     setImageFailed(false);
+    setImageLoaded(false);
     setImageAttempt((n) => n + 1);
   };
 
@@ -89,11 +92,6 @@ const ScanCompare = () => {
         </header>
 
         <div className="oh-result-body oh-compare-body">
-          <div className="oh-compare-banner">
-            <ShieldIcon size={18} />
-            Verification successful
-          </div>
-
           <div className="oh-compare-card">
             <div className="oh-compare-image">
               {imageFailed ? (
@@ -106,8 +104,14 @@ const ScanCompare = () => {
                   key={imageAttempt}
                   src={product.imageUrl}
                   alt={`Secret image for ${product.productName}`}
+                  onLoad={() => setImageLoaded(true)}
                   onError={() => setImageFailed(true)}
                 />
+              )}
+              {!imageFailed && !imageLoaded && (
+                <span className="oh-image-loading" role="status" aria-label="Loading image">
+                  <Spinner className="solo lg" />
+                </span>
               )}
             </div>
             <dl className="oh-compare-facts">
@@ -144,7 +148,7 @@ const ScanCompare = () => {
               onClick={() => answer('MATCHED')}
               disabled={Boolean(answering)}
             >
-              <CheckIcon size={18} />
+              {answering === 'MATCHED' ? <Spinner className="solo" /> : <CheckIcon size={18} />}
               {answering === 'MATCHED' ? 'Saving…' : 'Matched'}
             </button>
             <button

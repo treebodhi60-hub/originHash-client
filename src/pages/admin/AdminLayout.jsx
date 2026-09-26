@@ -1,6 +1,8 @@
+import { useCallback, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import AdminBottomNav from '../../components/AdminBottomNav.jsx';
+import AdminBottomNav, { adminMenuItems } from '../../components/AdminBottomNav.jsx';
+import { MenuButton, MenuDrawer } from '../../components/MobileMenu.jsx';
 import { logout } from '../../store/authSlice';
 import '../../styles/admin.css';
 import '../../styles/app-shell.css';
@@ -17,6 +19,12 @@ const AdminLayout = () => {
   const { pathname } = useLocation();
   // The scan screens and History carry their own header, so the phone top bar would double it up.
   const showMobileTopbar = !['/admin/scan', '/admin/history', '/admin/journey'].some((p) => pathname.startsWith(p));
+
+  // Phone ☰ menu. Pages that draw their own header get openMenu through the outlet context.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const openMenu = useCallback(() => setMenuOpen(true), []);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  useEffect(() => setMenuOpen(false), [pathname]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -141,6 +149,7 @@ const AdminLayout = () => {
         {showMobileTopbar && (
         <header className="oh-mobile-topbar">
           <div className="oh-mobile-topbar-brand">
+            <MenuButton onClick={openMenu} />
             <span className="oh-mobile-topbar-logo">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path
@@ -186,11 +195,12 @@ const AdminLayout = () => {
         )}
 
         <main className="oh-admin-main">
-          <Outlet />
+          <Outlet context={{ openMenu }} />
         </main>
       </div>
 
       <AdminBottomNav />
+      <MenuDrawer open={menuOpen} onClose={closeMenu} items={adminMenuItems} onLogout={handleLogout} />
     </div>
   );
 };

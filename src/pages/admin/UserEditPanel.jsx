@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addUser, editUser } from '../../store/usersSlice';
+import { Spinner } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 
 const USER_TYPES = [
@@ -116,7 +117,14 @@ const UserEditPanel = ({ mode, user, onClose }) => {
               Cancel
             </button>
             <button className="oh-btn-save" type="submit" disabled={saving}>
-              {saving ? 'Saving…' : 'Save'}
+              {saving ? (
+                <>
+                  <Spinner />
+                  Saving…
+                </>
+              ) : (
+                'Save'
+              )}
             </button>
           </div>
         </form>

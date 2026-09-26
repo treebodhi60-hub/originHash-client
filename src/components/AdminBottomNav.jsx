@@ -57,14 +57,18 @@ const icons = {
   ),
 };
 
+// Phones show these four in the bottom bar; the other pages are in the ☰ menu (adminMenuItems).
 const items = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { to: '/admin/scan', label: 'Scan', icon: 'scan' },
   { to: '/admin/history', label: 'History', icon: 'history' },
-  { to: '/admin/users', label: 'Users', icon: 'users' },
-  { to: '/admin/images', label: 'Images', icon: 'images' },
-  { to: '/admin/qr-stickers', label: 'QR', icon: 'qr' },
   { to: '/admin/profile', label: 'Profile', icon: 'profile' },
+];
+
+export const adminMenuItems = [
+  { to: '/admin/users', label: 'Users', icon: icons.users },
+  { to: '/admin/images', label: 'Image stock', icon: icons.images },
+  { to: '/admin/qr-stickers', label: 'QR stickers', icon: icons.qr },
 ];
 
 const AdminBottomNav = () => (

@@ -5,6 +5,7 @@ import { fetchAdmins, promoteUser, demoteAdmin, setSearch as setAdminSearch } fr
 import UserEditPanel from './UserEditPanel.jsx';
 import AdminEditPanel from './AdminEditPanel.jsx';
 import UserHistoryPanel from './UserHistoryPanel.jsx';
+import { LoadingState, RefreshingNote, Spinner } from '../../components/Loader.jsx';
 import '../../styles/admin.css';
 
 const exportCsv = (users) => {
@@ -98,7 +99,14 @@ const PromoteModal = ({ user, onClose }) => {
               Cancel
             </button>
             <button className="oh-btn-save" type="submit" disabled={saving}>
-              {saving ? 'Promoting…' : 'Promote to admin'}
+              {saving ? (
+                <>
+                  <Spinner />
+                  Promoting…
+                </>
+              ) : (
+                'Promote to admin'
+              )}
             </button>
           </div>
         </form>
@@ -168,7 +176,14 @@ const DemoteMobileModal = ({ admin, onClose }) => {
               Cancel
             </button>
             <button className="oh-btn-save" type="submit" disabled={saving}>
-              {saving ? 'Demoting…' : 'Demote to normal user'}
+              {saving ? (
+                <>
+                  <Spinner />
+                  Demoting…
+                </>
+              ) : (
+                'Demote to normal user'
+              )}
             </button>
           </div>
         </form>
@@ -183,6 +198,7 @@ const NormalUsersTab = ({ showPromote }) => {
   const [panel, setPanel] = useState(null); // { mode: 'add' | 'edit', user? }
   const [promoting, setPromoting] = useState(null); // user being promoted
   const [historyUserId, setHistoryUserId] = useState(null);
+  const [blocking, setBlocking] = useState({}); // user id → true while its block/unblock runs
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -191,8 +207,14 @@ const NormalUsersTab = ({ showPromote }) => {
     return () => clearTimeout(timeout);
   }, [dispatch, search, statusFilter]);
 
-  const handleToggleBlock = (user) => {
-    dispatch(toggleBlock({ id: user.id, block: !user.isBlocked }));
+  const handleToggleBlock = async (user) => {
+    setBlocking((b) => ({ ...b, [user.id]: true }));
+    await dispatch(toggleBlock({ id: user.id, block: !user.isBlocked }));
+    setBlocking((b) => {
+      const next = { ...b };
+      delete next[user.id];
+      return next;
+    });
   };
 
   return (
@@ -232,8 +254,10 @@ const NormalUsersTab = ({ showPromote }) => {
         </select>
       </div>
 
+      {status === 'loading' && list.length > 0 && <RefreshingNote />}
+
       <div className="oh-users-panel">
-        {status === 'loading' && list.length === 0 && <div className="oh-empty-state">Loading users…</div>}
+        {status === 'loading' && list.length === 0 && <LoadingState label="Loading users…" />}
 
         {status !== 'loading' && list.length === 0 && (
           <div className="oh-empty-state">No users match this search yet.</div>
@@ -280,8 +304,18 @@ const NormalUsersTab = ({ showPromote }) => {
                 <button
                   className={user.isBlocked ? 'oh-btn-unblock' : 'oh-btn-block'}
                   onClick={() => handleToggleBlock(user)}
+                  disabled={Boolean(blocking[user.id])}
                 >
-                  {user.isBlocked ? 'Unblock' : 'Block'}
+                  {blocking[user.id] ? (
+                    <>
+                      <Spinner />
+                      {user.isBlocked ? 'Unblocking…' : 'Blocking…'}
+                    </>
+                  ) : user.isBlocked ? (
+                    'Unblock'
+                  ) : (
+                    'Block'
+                  )}
                 </button>
               </div>
             </div>
@@ -302,6 +336,7 @@ const AdminsTab = () => {
   const currentUser = useSelector((state) => state.auth.user);
   const [panel, setPanel] = useState(null); // { mode: 'add' | 'edit', admin? }
   const [demoteTarget, setDemoteTarget] = useState(null); // admin needing a mobile number
+  const [demotingId, setDemotingId] = useState(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -310,13 +345,15 @@ const AdminsTab = () => {
     return () => clearTimeout(timeout);
   }, [dispatch, search]);
 
-  const handleDemote = (admin) => {
+  const handleDemote = async (admin) => {
     if (!admin.mobile) {
       setDemoteTarget(admin);
       return;
     }
     if (!window.confirm(`Demote ${admin.name || admin.username} to a normal user?`)) return;
-    dispatch(demoteAdmin({ id: admin.id }));
+    setDemotingId(admin.id);
+    await dispatch(demoteAdmin({ id: admin.id }));
+    setDemotingId(null);
   };
 
   return (
@@ -343,7 +380,7 @@ const AdminsTab = () => {
       </div>
 
       <div className="oh-users-panel">
-        {status === 'loading' && list.length === 0 && <div className="oh-empty-state">Loading admins…</div>}
+        {status === 'loading' && list.length === 0 && <LoadingState label="Loading admins…" />}
         {status !== 'loading' && list.length === 0 && <div className="oh-empty-state">No admins match this search.</div>}
 
         {list.map((admin) => {
@@ -365,8 +402,19 @@ const AdminsTab = () => {
               </div>
               <div className="oh-user-actions">
                 {!isSelf && (
-                  <button className="oh-btn-cancel" onClick={() => handleDemote(admin)}>
-                    Demote
+                  <button
+                    className="oh-btn-cancel"
+                    onClick={() => handleDemote(admin)}
+                    disabled={demotingId === admin.id}
+                  >
+                    {demotingId === admin.id ? (
+                      <>
+                        <Spinner />
+                        Demoting…
+                      </>
+                    ) : (
+                      'Demote'
+                    )}
                   </button>
                 )}
                 <button className="oh-btn-edit" onClick={() => setPanel({ mode: 'edit', admin })}>

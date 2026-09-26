@@ -1,0 +1,70 @@
+/* ---------- Loaders (components/Loader.jsx) ---------- */
+@keyframes oh-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.oh-loader {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.45em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -0.15em;
+  animation: oh-loader-spin 0.7s linear infinite;
+}
+
+.oh-loader.solo {
+  margin-right: 0;
+}
+
+.oh-loader.lg {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}
+
+.oh-loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.oh-loading-row .oh-loader {
+  margin-right: 0;
+}
+
+.oh-refreshing {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -6px 0 10px;
+  font-size: 0.78rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-refreshing .oh-loader {
+  margin-right: 0;
+}
+
+/* A card or row whose request is running: dimmed and not clickable. */
+.oh-is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Centred over an image box until the image has loaded. */
+.oh-image-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--oh-forest);
+  pointer-events: none;
+}

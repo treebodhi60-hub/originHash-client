@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import BrandPanel from '../components/BrandPanel.jsx';
+import { Spinner } from '../components/Loader.jsx';
 import { sendOtp, verifyOtp, clearError } from '../store/authSlice';
 import '../styles/auth.css';
 
 const OtpVerify = () => {
   const [otp, setOtp] = useState('');
   const [resendIn, setResendIn] = useState(24);
+  const [resending, setResending] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // const { mobile, demoOtp, status, error, token, user } = useSelector((state) => state.auth);
@@ -74,7 +76,9 @@ const OtpVerify = () => {
   const handleResend = async () => {
     dispatch(clearError());
 
+    setResending(true);
     const result = await dispatch(sendOtp(mobile));
+    setResending(false);
 
     if (sendOtp.fulfilled.match(result)) {
       setResendIn(30);
@@ -119,7 +123,12 @@ const OtpVerify = () => {
             </div>
 
             <button className="oh-btn-primary" type="submit" disabled={status === 'loading' || !otp}>
-              {status === 'loading' ? 'Verifying…' : 'Verify and log in'}
+              {status === 'loading' && !resending ? (
+                <>
+                  <Spinner />
+                  Verifying…
+                </>
+              ) : 'Verify and log in'}
             </button>
           </form>
 
@@ -127,8 +136,13 @@ const OtpVerify = () => {
             {resendIn > 0 ? (
               <span>Resend in {resendIn}s</span>
             ) : (
-              <button className="oh-link" type="button" onClick={handleResend}>
-                Resend OTP
+              <button className="oh-link" type="button" onClick={handleResend} disabled={resending}>
+                {resending ? (
+                  <>
+                    <Spinner />
+                    Sending OTP…
+                  </>
+                ) : 'Resend OTP'}
               </button>
             )}
           </div>

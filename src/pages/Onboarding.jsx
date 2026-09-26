@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import BrandPanel from '../components/BrandPanel.jsx';
+import { Spinner } from '../components/Loader.jsx';
 import { updateProfile, skipOnboarding } from '../store/authSlice';
 import '../styles/auth.css';
 
@@ -17,6 +18,7 @@ const Onboarding = () => {
   const [photo, setPhoto] = useState(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [skipping, setSkipping] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -50,6 +52,7 @@ const Onboarding = () => {
   };
 
   const handleSkip = async () => {
+    setSkipping(true);
     await dispatch(skipOnboarding());
     navigate('/home', { replace: true });
   };
@@ -127,14 +130,24 @@ const Onboarding = () => {
               <input id="photo" type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files[0])} />
             </div>
 
-            <button className="oh-btn-primary" type="submit" disabled={submitting}>
-              {submitting ? 'Saving…' : 'Continue →'}
+            <button className="oh-btn-primary" type="submit" disabled={submitting || skipping}>
+              {submitting ? (
+                <>
+                  <Spinner />
+                  Saving…
+                </>
+              ) : 'Continue →'}
             </button>
           </form>
 
           <p className="oh-auth-footer">
-            <button className="oh-link" type="button" onClick={handleSkip}>
-              Skip for now
+            <button className="oh-link" type="button" onClick={handleSkip} disabled={skipping || submitting}>
+              {skipping ? (
+                <>
+                  <Spinner />
+                  Skipping…
+                </>
+              ) : 'Skip for now'}
             </button>
           </p>
         </div>
