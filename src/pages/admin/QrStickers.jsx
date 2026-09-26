@@ -440,6 +440,7 @@ const HistoryTab = () => {
           batchNo: code.batchNo,
           variantSize: code.variantSize,
           folderName: code.folderName,
+          folderDeleted: code.folderDeleted,
           splitType: code.splitType,
           pageSize: code.pageSize,
           createdAt: code.createdAt,
@@ -501,7 +502,8 @@ const HistoryTab = () => {
               </div>
               <div className="oh-image-sub">
                 Batch {group.batchNo}
-                {group.variantSize ? ` · ${group.variantSize}` : ''} · {group.folderName} ·{' '}
+                {group.variantSize ? ` · ${group.variantSize}` : ''} · {group.folderName}
+                {group.folderDeleted ? ' (deleted folder)' : ''} ·{' '}
                 {group.items.length} codes · {group.splitType === 'horizontal-50-50' ? 'Horizontal' : 'Vertical'},{' '}
                 {group.pageSize || 'A4'} · {formatDate(group.createdAt)}
               </div>

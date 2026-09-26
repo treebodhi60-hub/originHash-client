@@ -400,12 +400,15 @@ const ImageStock = () => {
   // Resolves to { ok, message }; a cancelled confirm is { ok: false } with no message.
   const handleDeleteFolder = async (folder) => {
     const count = folder.imagesCount ?? 0;
-    if (!window.confirm(`Delete ${folder.name} and its ${count} image${count === 1 ? '' : 's'}? This can't be undone.`)) {
+    const question =
+      `Delete ${folder.name} and its ${count} image${count === 1 ? '' : 's'}? ` +
+      "QR stickers already generated from it keep working. This can't be undone.";
+    if (!window.confirm(question)) {
       return { ok: false };
     }
     const action = await dispatch(deleteFolder(folder.id));
     if (action.meta.requestStatus === 'fulfilled') {
-      setNotice({ type: 'success', text: `${folder.name} deleted.` });
+      setNotice({ type: 'success', text: action.payload.message || `${folder.name} deleted.` });
       return { ok: true };
     }
     setNotice({ type: 'error', text: action.payload });

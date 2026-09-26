@@ -44,11 +44,11 @@ export const generateSampleFolder = createAsyncThunk(
   }
 );
 
-// Admin: only sample folders that no QR batch has used can be deleted.
+// Admin: only sample folders can be deleted; QR batches made from one keep their stickers.
 export const deleteFolder = createAsyncThunk('imageStock/deleteFolder', async (id, { rejectWithValue }) => {
   try {
-    await api.delete(`/image-stock/folders/${id}`);
-    return id;
+    const { data } = await api.delete(`/image-stock/folders/${id}`);
+    return { id, message: data.message };
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Could not delete folder.');
   }
@@ -123,8 +123,8 @@ const imageStockSlice = createSlice({
         state.images = [...action.payload.images, ...state.images];
       })
       .addCase(deleteFolder.fulfilled, (state, action) => {
-        state.folders = state.folders.filter((f) => f.id !== action.payload);
-        state.images = state.images.filter((img) => img.folderId !== action.payload);
+        state.folders = state.folders.filter((f) => f.id !== action.payload.id);
+        state.images = state.images.filter((img) => img.folderId !== action.payload.id);
       })
       .addCase(fetchImages.pending, (state) => {
         state.imagesStatus = 'loading';
