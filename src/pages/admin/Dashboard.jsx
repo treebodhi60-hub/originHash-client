@@ -129,7 +129,7 @@ const CardLink = ({ to, children }) => (
 );
 
 const WeekDelta = ({ value, noun }) =>
-  value > 0 ? (
+  value == null ? null : value > 0 ? (
     <span className="oh-dash-delta up" title={`${value} new ${noun} in the last 7 days`}>
       <TrendUpIcon size={13} />+{formatNumber(value)} this week
     </span>
@@ -198,11 +198,11 @@ const Hero = ({ user, onRefresh, refreshing, loaded }) => {
 
 const KpiRow = ({ stats }) => {
   const { users, qrStickers, scans, imageStock } = stats;
-  const scansThisWeek = scans.daily.slice(-7).reduce((sum, d) => sum + d.count, 0);
+  const scansThisWeek = scans?.daily.slice(-7).reduce((sum, d) => sum + d.count, 0);
   const availableShare = percent(imageStock.availableImages, imageStock.images);
 
   return (
-    <div className="oh-kpi-row">
+    <div className={`oh-kpi-row ${scans ? '' : 'cols-3'}`}>
       <Kpi
         icon={UsersIcon}
         tone="forest"
@@ -219,14 +219,16 @@ const KpiRow = ({ stats }) => {
         foot={`Across ${plural(qrStickers.batches, 'batch', 'batches')}`}
         delta={<WeekDelta value={qrStickers.codesLast7Days} noun="codes" />}
       />
-      <Kpi
-        icon={ScanIcon}
-        tone="green"
-        label="Scans"
-        value={scans.total}
-        foot={`${formatNumber(scans.records)} recorded · ${formatNumber(scans.verifications)} verified`}
-        delta={<WeekDelta value={scansThisWeek} noun="scans" />}
-      />
+      {scans && (
+        <Kpi
+          icon={ScanIcon}
+          tone="green"
+          label="Scans"
+          value={scans.total}
+          foot={`${formatNumber(scans.records)} recorded · ${formatNumber(scans.verifications)} verified`}
+          delta={<WeekDelta value={scansThisWeek} noun="scans" />}
+        />
+      )}
       <Kpi
         icon={ImageIcon}
         tone="purple"
@@ -616,6 +618,28 @@ const DashboardSkeleton = () => (
 
 // ---------- page ----------
 
+// The page must not crash when the API is older or newer than this build (the frontend and the
+// backend deploy separately): sections whose data is missing are left out instead of read blindly.
+const normalizeStats = (data) => {
+  const scans = data?.scans;
+  return {
+    users: { total: 0, active: 0, blocked: 0, byType: {}, ...data?.users },
+    imageStock: { folders: 0, images: 0, availableImages: 0, blockedImages: 0, ...data?.imageStock },
+    qrStickers: { batches: 0, codes: 0, ...data?.qrStickers },
+    scans:
+      Array.isArray(scans?.daily) && scans.daily.length
+        ? {
+            total: 0,
+            records: 0,
+            verifications: 0,
+            ...scans,
+            outcomes: { matched: 0, unmatched: 0, flagged: 0, abandoned: 0, ...scans.outcomes },
+          }
+        : null,
+    admins: data?.admins || null,
+  };
+};
+
 const Dashboard = () => {
   const currentUser = useSelector((s) => s.auth.user);
   const [stats, setStats] = useState(null);
@@ -628,7 +652,7 @@ const Dashboard = () => {
         params: { utcOffset: -new Date().getTimezoneOffset() },
         signal,
       });
-      setStats(data);
+      setStats(normalizeStats(data));
       setStatus('succeeded');
     } catch (err) {
       if (!signal?.aborted) setStatus('failed');
@@ -677,12 +701,12 @@ const Dashboard = () => {
         <div className={refreshing ? 'oh-dash-refreshing' : undefined}>
           <KpiRow stats={stats} />
           <div className={`oh-dash-grid ${stats.admins ? 'with-admins' : ''}`}>
-            <ActivityChart daily={stats.scans.daily} />
-            <VerificationCard scans={stats.scans} />
+            {stats.scans && <ActivityChart daily={stats.scans.daily} />}
+            {stats.scans && <VerificationCard scans={stats.scans} />}
             <UsersCard users={stats.users} className={bottomSpan} />
             <ImageStockCard imageStock={stats.imageStock} className={bottomSpan} />
             {stats.admins && <AdminsCard admins={stats.admins} className={bottomSpan} />}
-            <RecentBatchesCard qrStickers={stats.qrStickers} />
+            {Array.isArray(stats.qrStickers.recentBatches) && <RecentBatchesCard qrStickers={stats.qrStickers} />}
           </div>
         </div>
       )}
