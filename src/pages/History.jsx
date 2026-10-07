@@ -12,6 +12,7 @@ import {
   PinIcon,
   SearchIcon,
   UndoIcon,
+  WarningIcon,
 } from '../components/ScanIcons.jsx';
 import { formatCoords, formatDateTimeShort, formatShortDate } from '../utils/format';
 import { scanRoutes } from '../utils/scanRoutes';
@@ -22,6 +23,7 @@ import '../styles/history.css';
 const FILTERS = [
   ['all', 'All'],
   ['verified', 'Verified'],
+  ['mismatched', 'Mismatched'],
   ['failed', 'Failed'],
   ['scanned', 'Scanned'],
 ];
@@ -32,14 +34,17 @@ const SEARCH_DEBOUNCE_MS = 350;
 
 const VERIFIED = { label: 'Verified', tone: 'success', icon: <CheckIcon size={18} /> };
 const FAILED = { label: 'Failed', tone: 'danger', icon: <CrossIcon size={18} /> };
+// The buyer reported that the revealed image didn't match the product in hand.
+const MISMATCHED = { label: 'Mismatched', tone: 'warning', icon: <WarningIcon size={18} /> };
 const SCANNED = { label: 'Scanned', tone: 'info', icon: <PinIcon size={18} /> };
 const NOT_VERIFIED = { label: 'Not verified', tone: 'muted', icon: <UndoIcon size={18} /> };
 
 export const HISTORY_STATUS = {
   MATCHED: VERIFIED,
   AUTHENTIC: VERIFIED,
+  VERIFIED,
   SCANNED,
-  UNMATCHED: FAILED,
+  UNMATCHED: MISMATCHED,
   NOT_FOUND: FAILED,
   INVALID: FAILED,
   ALREADY_VIEWED: FAILED,

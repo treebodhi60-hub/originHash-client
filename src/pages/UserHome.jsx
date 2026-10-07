@@ -5,7 +5,7 @@ import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo.jsx';
 import { MenuButton } from '../components/MobileMenu.jsx';
 import { LoadingState } from '../components/Loader.jsx';
-import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon, UndoIcon } from '../components/ScanIcons.jsx';
+import { BoxIcon, CheckIcon, ChevronRightIcon, CrossIcon, QrIcon, ShieldIcon, UndoIcon, WarningIcon } from '../components/ScanIcons.jsx';
 import { formatScanTime } from '../utils/format';
 import { scanRoutes } from '../utils/scanRoutes';
 import '../styles/app-shell.css';
@@ -14,13 +14,15 @@ import '../styles/home.css';
 const RECORDED = { label: 'Recorded', tone: 'neutral', icon: <BoxIcon size={16} /> };
 const AUTHENTIC = { label: 'Authentic', tone: 'success', icon: <CheckIcon size={16} /> };
 const FAILED = { label: 'Failed', tone: 'danger', icon: <CrossIcon size={16} /> };
+const MISMATCHED = { label: 'Mismatched', tone: 'warning', icon: <WarningIcon size={16} /> };
 const NOT_VERIFIED = { label: 'Not verified', tone: 'muted', icon: <UndoIcon size={16} /> };
 
 const STATUS = {
   SCANNED: RECORDED,
   MATCHED: AUTHENTIC,
   AUTHENTIC,
-  UNMATCHED: FAILED,
+  VERIFIED: AUTHENTIC,
+  UNMATCHED: MISMATCHED,
   NOT_FOUND: FAILED,
   INVALID: FAILED,
   ALREADY_VIEWED: FAILED,

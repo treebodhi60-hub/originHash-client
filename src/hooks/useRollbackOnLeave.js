@@ -3,7 +3,7 @@ import api from '../api/axios';
 
 export const rollBackScan = (scanId) =>
   api.patch(`/scans/${scanId}`, { result: 'ROLLED_BACK' }).catch(() => {
-    // Best effort: an unanswered verification just stays PENDING.
+    // Best effort: an unanswered verification just stays as it is.
   });
 
 // Marks an open verification ROLLED_BACK when the page is left without an answer — the back

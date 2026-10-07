@@ -74,6 +74,7 @@
 
 .oh-history-icon.success { background: var(--oh-badge-farmer-bg); color: var(--oh-badge-farmer-text); }
 .oh-history-icon.danger { background: var(--oh-red-bg); color: var(--oh-red); }
+.oh-history-icon.warning { background: var(--oh-badge-changed-bg); color: #c2410c; }
 .oh-history-icon.info { background: var(--oh-badge-retailer-bg); color: var(--oh-badge-retailer-text); }
 .oh-history-icon.muted { background: var(--oh-badge-consumer-bg); color: var(--oh-text-muted); }
 
@@ -128,6 +129,7 @@
 
 .oh-history-status.success { color: var(--oh-badge-farmer-text); }
 .oh-history-status.danger { color: var(--oh-red); }
+.oh-history-status.warning { color: #c2410c; }
 .oh-history-status.info { color: var(--oh-badge-retailer-text); }
 .oh-history-status.muted { color: var(--oh-text-muted); }
 
@@ -954,6 +956,7 @@
 
   .oh-history-status-cell.success { color: var(--oh-badge-farmer-text); }
   .oh-history-status-cell.danger { color: var(--oh-red); }
+  .oh-history-status-cell.warning { color: #c2410c; }
   .oh-history-status-cell.info { color: var(--oh-badge-retailer-text); }
   .oh-history-status-cell.muted { color: var(--oh-text-muted); }
 

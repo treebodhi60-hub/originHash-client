@@ -30,7 +30,7 @@ const ScanCompare = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [reporting, setReporting] = useState(false);
   const reportRef = useRef(null);
-  const openScanIdRef = useRef(scan?.result === 'PENDING' ? scan.id : null);
+  const openScanIdRef = useRef(['VERIFIED', 'PENDING'].includes(scan?.result) ? scan.id : null);
   useRollbackOnLeave(openScanIdRef);
 
   useEffect(() => {

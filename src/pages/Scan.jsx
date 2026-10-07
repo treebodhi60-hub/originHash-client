@@ -268,7 +268,8 @@ const Scan = () => {
     try {
       const position = await (locationRef.current ?? getLocation());
       const { data } = await api.post('/scans', { code: captured.code, action, ...position });
-      const pending = data.scan.result === 'PENDING';
+      // The first user to verify this sticker: one chance to see its image (asked once, here).
+      const pending = ['VERIFIED', 'PENDING'].includes(data.scan.result) && !data.scan.imageRevealedAt;
       if (!mountedRef.current) {
         if (pending) rollBackScan(data.scan.id);
         return;

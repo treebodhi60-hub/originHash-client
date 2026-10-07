@@ -264,6 +264,11 @@
   color: var(--oh-red);
 }
 
+.oh-home-recent-icon.warning {
+  background: var(--oh-badge-changed-bg);
+  color: #c2410c;
+}
+
 .oh-home-recent-icon.neutral {
   background: #eef6f0;
   color: var(--oh-forest);
@@ -308,6 +313,10 @@
 
 .oh-home-recent-status.danger {
   color: var(--oh-red);
+}
+
+.oh-home-recent-status.warning {
+  color: #c2410c;
 }
 
 .oh-home-recent-status.neutral {

@@ -38,6 +38,7 @@ const NOT_VERIFIED = {
 const VARIANTS = {
   MATCHED: VERIFIED,
   AUTHENTIC: VERIFIED,
+  VERIFIED,
   SCANNED: { title: 'Scan details' },
   UNMATCHED: {
     title: 'Verification details',
@@ -329,7 +330,7 @@ const VerifyDetails = ({ data, variant }) => {
           <Row label="Scanned by">{data.scannedBy.name || 'Unnamed user'}</Row>
         )}
         {firstViewedAt && <Row label="First verified">{formatDateTimeShort(firstViewedAt)}</Row>}
-        <Row label={scan.result === 'MATCHED' || scan.result === 'AUTHENTIC' ? 'Verified on' : 'Checked on'}>
+        <Row label={['VERIFIED', 'MATCHED', 'AUTHENTIC'].includes(scan.result) ? 'Verified on' : 'Checked on'}>
           {formatDateTimeShort(scan.createdAt)}
         </Row>
         <Row label="Location">
