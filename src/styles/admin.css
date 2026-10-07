@@ -1116,7 +1116,8 @@
   color: var(--oh-text-muted);
 }
 
-.oh-history-name {
+/* Scoped: History.jsx uses .oh-history-name / .oh-history-list for its own scan cards. */
+.oh-history-names .oh-history-name {
   background: var(--oh-cream);
   border: 1px solid var(--oh-border);
   border-radius: 999px;
@@ -1131,7 +1132,8 @@
   margin: 0 0 18px;
 }
 
-.oh-history-list {
+ol.oh-history-list {
+  display: block;
   list-style: none;
   margin: 0 0 0 6px;
   padding: 0;
