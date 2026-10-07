@@ -123,12 +123,13 @@ const ScanDetails = () => {
   const [shareFile, setShareFile] = useState(null);
   useEffect(() => {
     setShareFile(null);
-    if (!data?.sticker) return undefined;
+    if (!data) return undefined;
     let cancelled = false;
     api
       .get(`/scans/${id}/share-card`, { responseType: 'blob' })
       .then(({ data: blob }) => {
-        if (!cancelled) setShareFile(new File([blob], `${data.sticker.code}-originhash.png`, { type: 'image/png' }));
+        const name = data.product?.code || data.scan.code || data.scan.uuid;
+        if (!cancelled) setShareFile(new File([blob], `${name}-originhash.png`, { type: 'image/png' }));
       })
       .catch(() => {}); // sharing then falls back to text only
     return () => {
@@ -237,24 +238,14 @@ const ScanDetails = () => {
               </button>
               {menuOpen && (
                 <div className="oh-share-menu" role="menu">
-                  {data?.sticker && (
-                    <button type="button" role="menuitem" onClick={shareSticker} disabled={!shareFile}>
-                      <strong>{shareFile ? 'Share sticker' : 'Preparing sticker image…'}</strong>
-                      <span>Sticker image with the QR and its code</span>
-                    </button>
-                  )}
-                  {data?.sticker && (
-                    <button type="button" role="menuitem" onClick={downloadImage} disabled={!shareFile}>
-                      <strong>Download sticker image</strong>
-                      <span>Save it to attach anywhere</span>
-                    </button>
-                  )}
-                  {!data?.sticker && navigator.share && (
-                    <button type="button" role="menuitem" onClick={shareSticker}>
-                      <strong>Share</strong>
-                      <span>Send these details</span>
-                    </button>
-                  )}
+                  <button type="button" role="menuitem" onClick={shareSticker} disabled={!shareFile}>
+                    <strong>{shareFile ? 'Share sticker' : 'Preparing sticker image…'}</strong>
+                    <span>{data?.product ? 'Sticker image with the QR and its code' : 'Image of the result and the scanned code'}</span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={downloadImage} disabled={!shareFile}>
+                    <strong>Download sticker image</strong>
+                    <span>Save it to attach anywhere</span>
+                  </button>
                   <button type="button" role="menuitem" onClick={copyDetails}>
                     <strong>Copy details</strong>
                     <span>Result, product, code, date and scan ID</span>
