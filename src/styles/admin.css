@@ -879,20 +879,15 @@
   padding: 8px 12px;
 }
 
-/* No beige behind the image on tall stickers (matches the PDF); dashed outline marks the spot. */
-.oh-sticker-card.tall .oh-sticker-image-box {
+/* Tall stickers stack the photo and QR as two equal squares (matches the PDF). */
+.oh-sticker-card.tall .oh-sticker-image-box,
+.oh-sticker-card.tall .oh-sticker-qr-box {
   flex: none;
-  width: 100%;
-  aspect-ratio: 112 / 48;
-  background: none;
-  border-style: dashed;
+  width: 46%;
 }
 
 .oh-sticker-card.tall .oh-sticker-qr-box {
-  flex: none;
-  width: 58%;
   padding: 4px;
-  border: none;
 }
 
 .oh-sticker-card.tall .oh-sticker-footer {
@@ -1034,37 +1029,6 @@
 }
 
 /* ---------- Dashboard stat tiles ---------- */
-.oh-stat-section {
-  margin-bottom: 28px;
-}
-
-.oh-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 14px;
-}
-
-.oh-stat-tile {
-  background: var(--oh-white);
-  border: 1px solid var(--oh-border);
-  border-radius: var(--oh-radius-md);
-  box-shadow: var(--oh-shadow);
-  padding: 18px;
-}
-
-.oh-stat-value {
-  font-size: 1.9rem;
-  font-weight: 700;
-  color: var(--oh-forest);
-  line-height: 1.1;
-}
-
-.oh-stat-label {
-  color: var(--oh-text-muted);
-  font-size: 0.82rem;
-  margin-top: 6px;
-}
-
 /* Codes whose product journey you can open (your own batches, or any as an admin). */
 .oh-qr-journey-hint {
   margin: -4px 0 8px;
