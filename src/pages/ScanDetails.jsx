@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
+import ReportPhoto from '../components/ReportPhoto.jsx';
 import { LoadingState } from '../components/Loader.jsx';
 import JourneySection, { hasPlaceNames, productLine } from '../components/JourneySection.jsx';
 import {
@@ -236,7 +237,7 @@ const VerifyDetails = ({ data, variant }) => {
             {data.scannedBy?.isYou === false ? 'Report' : 'Your report'}
             <span>{formatDateTimeShort(report.createdAt)}</span>
           </div>
-          {report.photoUrl && <img src={report.photoUrl} alt="The photo you sent with your report" />}
+          {report.photoUrl && <ReportPhoto url={report.photoUrl} alt="The photo you sent with your report" />}
           {report.note && <p className="oh-result-report-note">{report.note}</p>}
           {!report.photoUrl && !report.note && <p className="oh-result-report-empty">Sent without a photo or description.</p>}
         </section>

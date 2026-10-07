@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import ReportPhoto from '../components/ReportPhoto.jsx';
 import ScanReportForm from '../components/ScanReportForm.jsx';
 import { ArrowLeftIcon, CheckIcon, CrossIcon, FlagIcon, HomeIcon, WarningIcon } from '../components/ScanIcons.jsx';
 import { formatDate, formatDateTime, formatScanTime } from '../utils/format';
@@ -154,7 +155,7 @@ const ScanResult = () => {
                 Your report
                 <span>{formatScanTime(report.createdAt)}</span>
               </div>
-              {report.photoUrl && <img src={report.photoUrl} alt="The photo you sent with your report" />}
+              {report.photoUrl && <ReportPhoto url={report.photoUrl} alt="The photo you sent with your report" />}
               {report.note && <p className="oh-result-report-note">{report.note}</p>}
               {!report.photoUrl && !report.note && (
                 <p className="oh-result-report-empty">Sent without a photo or description.</p>
