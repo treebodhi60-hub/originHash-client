@@ -430,6 +430,57 @@
   color: var(--oh-text);
 }
 
+/* Share menu under the header's share button. */
+.oh-share-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.oh-share-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: 270px;
+  padding: 6px;
+  border: 1px solid var(--oh-border);
+  border-radius: 14px;
+  background: var(--oh-white);
+  box-shadow: 0 16px 40px rgba(15, 30, 26, 0.22);
+  text-align: left;
+}
+
+.oh-share-menu button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+}
+
+.oh-share-menu button:hover:not(:disabled) {
+  background: var(--oh-cream);
+}
+
+.oh-share-menu button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.oh-share-menu strong {
+  font-size: 0.88rem;
+  color: var(--oh-text);
+}
+
+.oh-share-menu span {
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+}
+
 /* Scan details: the IDs card, with the sticker beside it on verifications. */
 .oh-details-ids-card {
   display: flex;

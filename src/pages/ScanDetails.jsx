@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
@@ -136,36 +136,82 @@ const ScanDetails = () => {
     };
   }, [id, data]);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const close = (e) => {
+      if (e.type === 'keydown' ? e.key === 'Escape' : !menuRef.current?.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('pointerdown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, [menuOpen]);
+
   const flashNote = (note) => {
     setShareNote(note);
-    setTimeout(() => setShareNote(''), 2500);
+    setTimeout(() => setShareNote(''), 3000);
   };
 
-  const share = async () => {
+  const shareText = () => {
     const { scan, product } = data;
     const what = variant.pill || variant.heading || 'Recorded scan';
     const code = product?.code || scan.code;
-    const text = `${what}: ${product ? productLine(product) : 'Unknown product'}${code ? ` (${code})` : ''}, ${formatDateTimeShort(scan.createdAt)}. OriginHash scan ID ${scan.uuid}.`;
+    return `${what}: ${product ? productLine(product) : 'Unknown product'}${code ? ` (${code})` : ''}, ${formatDateTimeShort(scan.createdAt)}. OriginHash scan ID ${scan.uuid}.`;
+  };
+
+  const copyDetails = async () => {
+    setMenuOpen(false);
+    try {
+      await navigator.clipboard.writeText(shareText());
+      flashNote('Details copied');
+    } catch {
+      flashNote("Couldn't copy — your browser blocked the clipboard");
+    }
+  };
+
+  const downloadImage = () => {
+    setMenuOpen(false);
+    if (!shareFile) return;
+    const url = URL.createObjectURL(shareFile);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = shareFile.name;
+    a.click();
+    URL.revokeObjectURL(url);
+    flashNote('Sticker image downloaded');
+  };
+
+  // Phones hand image + text to apps together (WhatsApp shows the text as the caption). Many desktop
+  // share targets keep only the text and drop the image, so on a computer only the image is shared
+  // and the details are copied, ready to paste next to it.
+  const shareSticker = async () => {
+    setMenuOpen(false);
+    const text = shareText();
+    const touch = window.matchMedia?.('(pointer: coarse)').matches;
     try {
       if (shareFile && navigator.canShare?.({ files: [shareFile] })) {
-        await navigator.share({ title: 'OriginHash', text, files: [shareFile] });
-      } else if (navigator.share && !shareFile) {
+        if (touch) {
+          await navigator.share({ title: 'OriginHash', text, files: [shareFile] });
+        } else {
+          await navigator.clipboard?.writeText(text).catch(() => {});
+          flashNote('Details copied — paste them with the image');
+          await navigator.share({ title: 'OriginHash', files: [shareFile] });
+        }
+      } else if (shareFile) {
+        downloadImage();
+        await navigator.clipboard?.writeText(text).catch(() => {});
+        flashNote('Sticker image downloaded · details copied');
+      } else if (navigator.share) {
         await navigator.share({ title: 'OriginHash', text });
       } else {
-        // No file sharing here (e.g. some desktop browsers): save the image and copy the details.
-        if (shareFile) {
-          const url = URL.createObjectURL(shareFile);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = shareFile.name;
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-        await navigator.clipboard?.writeText(text).catch(() => {});
-        flashNote(shareFile ? 'Sticker image downloaded · details copied' : 'Details copied');
+        await copyDetails();
       }
     } catch {
-      // Share sheet dismissed, or clipboard blocked — nothing to do.
+      // Share sheet dismissed — nothing to do.
     }
   };
 
@@ -178,9 +224,44 @@ const ScanDetails = () => {
           </button>
           <h1 className="oh-result-title">{variant?.title || 'Scan details'}</h1>
           {status === 'ready' ? (
-            <button type="button" className="oh-scan-icon-btn" onClick={share} aria-label="Share these details">
-              <ShareIcon size={20} />
-            </button>
+            <span className="oh-share-wrap" ref={menuRef}>
+              <button
+                type="button"
+                className="oh-scan-icon-btn"
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-label="Share these details"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+              >
+                <ShareIcon size={20} />
+              </button>
+              {menuOpen && (
+                <div className="oh-share-menu" role="menu">
+                  {data?.sticker && (
+                    <button type="button" role="menuitem" onClick={shareSticker} disabled={!shareFile}>
+                      <strong>{shareFile ? 'Share sticker' : 'Preparing sticker image…'}</strong>
+                      <span>Sticker image with the QR and its code</span>
+                    </button>
+                  )}
+                  {data?.sticker && (
+                    <button type="button" role="menuitem" onClick={downloadImage} disabled={!shareFile}>
+                      <strong>Download sticker image</strong>
+                      <span>Save it to attach anywhere</span>
+                    </button>
+                  )}
+                  {!data?.sticker && navigator.share && (
+                    <button type="button" role="menuitem" onClick={shareSticker}>
+                      <strong>Share</strong>
+                      <span>Send these details</span>
+                    </button>
+                  )}
+                  <button type="button" role="menuitem" onClick={copyDetails}>
+                    <strong>Copy details</strong>
+                    <span>Result, product, code, date and scan ID</span>
+                  </button>
+                </div>
+              )}
+            </span>
           ) : (
             <span className="oh-scan-icon-spacer" />
           )}
