@@ -17,10 +17,8 @@ const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // The scan screens and History carry their own header, so the phone top bar would double it up.
-  const showMobileTopbar = !['/admin/scan', '/admin/history', '/admin/journey'].some((p) => pathname.startsWith(p));
 
-  // Phone ☰ menu. Pages that draw their own header get openMenu through the outlet context.
+  // Phone ☰ menu, opened from the top bar (shown, pinned, on every page on phones and tablets).
   const [menuOpen, setMenuOpen] = useState(false);
   const openMenu = useCallback(() => setMenuOpen(true), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -146,7 +144,6 @@ const AdminLayout = () => {
       </aside>
 
       <div className="oh-user-content-col">
-        {showMobileTopbar && (
         <header className="oh-mobile-topbar">
           <div className="oh-mobile-topbar-brand">
             <MenuButton onClick={openMenu} />
@@ -192,10 +189,10 @@ const AdminLayout = () => {
             </svg>
           </button>
         </header>
-        )}
 
         <main className="oh-admin-main">
-          <Outlet context={{ openMenu }} />
+          {/* No openMenu for pages: the top bar has the only ☰ button. */}
+          <Outlet context={{}} />
         </main>
       </div>
 

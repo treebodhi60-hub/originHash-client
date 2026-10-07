@@ -10,6 +10,28 @@
   min-height: calc(100dvh - 134px);
 }
 
+/* Phones and tablets: the pinned top bar (~64px) already shows the brand, so the page's own
+   logo header is hidden and the full-height screens leave room for the bar. */
+@media (max-width: 1023.98px) {
+  /* "body" outranks the base rules further down in this file. */
+  body .oh-scan-brand {
+    display: none;
+  }
+
+  body .oh-scan-page {
+    min-height: calc(100vh - 198px);
+    min-height: calc(100dvh - 198px);
+  }
+}
+
+@media (max-width: 699.98px) {
+  /* "body" outranks the compare page's own full-height rule further down. */
+  body .oh-compare-page {
+    min-height: calc(100vh - 198px);
+    min-height: calc(100dvh - 198px);
+  }
+}
+
 /* ---------- Brand header ---------- */
 .oh-scan-brand {
   display: flex;
