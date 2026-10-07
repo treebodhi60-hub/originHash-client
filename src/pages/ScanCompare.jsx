@@ -21,7 +21,7 @@ const ScanCompare = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const paths = scanRoutes(user);
-  const { scan, product } = location.state || {};
+  const { scan, product, firstVerifiedAt } = location.state || {};
 
   const [answering, setAnswering] = useState(null);
   const [error, setError] = useState('');
@@ -130,7 +130,18 @@ const ScanCompare = () => {
                 <dt>Verified on</dt>
                 <dd>{formatDateTime(scan.imageRevealedAt || scan.createdAt)}</dd>
               </div>
+              {firstVerifiedAt && (
+                <div>
+                  <dt>First verified</dt>
+                  <dd>{formatDateTime(firstVerifiedAt)}</dd>
+                </div>
+              )}
             </dl>
+            {firstVerifiedAt && (
+              <p className="oh-compare-earlier" role="note">
+                This sticker was verified before. If you bought this product sealed, compare carefully.
+              </p>
+            )}
           </div>
 
           <h2 className="oh-compare-question">Does this image match your product?</h2>

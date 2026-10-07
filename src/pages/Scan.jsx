@@ -268,18 +268,26 @@ const Scan = () => {
     try {
       const position = await (locationRef.current ?? getLocation());
       const { data } = await api.post('/scans', { code: captured.code, action, ...position });
-      // The first user to verify this sticker: one chance to see its image (asked once, here).
-      const pending = ['VERIFIED', 'PENDING'].includes(data.scan.result) && !data.scan.imageRevealedAt;
+      const open = ['VERIFIED', 'PENDING'].includes(data.scan.result) && !data.scan.imageRevealedAt;
       if (!mountedRef.current) {
-        if (pending) rollBackScan(data.scan.id);
+        if (open) rollBackScan(data.scan.id);
         return;
       }
-      if (pending) {
-        // A real sticker: ask before revealing its once-only image.
+      if (open && data.askFirst !== false) {
+        // The very first verification of this sticker: ask once before showing the image.
         openScanIdRef.current = data.scan.id;
         setBusy(null);
         setSheetError('');
         setVerifying({ scan: data.scan, product: data.product });
+        return;
+      }
+      if (open) {
+        // Verified before: straight to the image to compare, no question.
+        openScanIdRef.current = data.scan.id;
+        const { data: revealed } = await api.post(`/scans/${data.scan.id}/reveal`);
+        if (!mountedRef.current) return;
+        openScanIdRef.current = null; // the Compare screen owns the open verification now
+        navigate(paths.compare, { state: revealed });
         return;
       }
       navigate(paths.result, { state: data });
