@@ -5,6 +5,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { store } from './store/store';
 import './styles/tokens.css';
 import App from './App.jsx';
+// Loaded after every page's own styles: the shared look (see the file's header).
+import './styles/refresh.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -1,0 +1,487 @@
+/* ==========================================================================
+   UI refresh — one visual language across every screen, matching the dashboard.
+   Styling only: loaded last (main.jsx), it refines existing classes and never
+   changes markup or behaviour. Same palette (tokens.css); tints are mixed from it.
+   ========================================================================== */
+
+:root {
+  --oh-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --oh-shadow-sm: 0 1px 2px rgba(22, 56, 50, 0.05), 0 4px 12px rgba(22, 56, 50, 0.05);
+  --oh-shadow-lg: 0 18px 40px rgba(22, 56, 50, 0.14);
+  --oh-ring: 0 0 0 3px rgba(22, 56, 50, 0.12);
+  --oh-hover: #f7f2ea; /* cream, one step towards the border tone */
+  --oh-panel-radius: 18px;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(201, 164, 100, 0.35);
+}
+
+/* ---------- Page width: centred and consistent, like the dashboard ---------- */
+.oh-admin-main > div {
+  max-width: 1360px;
+  margin-inline: auto;
+}
+
+/* The Scan home sat against the left edge on laptops. */
+.oh-home {
+  margin-inline: auto;
+}
+
+/* ---------- Sidebar (laptop) ---------- */
+.oh-sidebar {
+  width: 76px;
+  background: linear-gradient(180deg, var(--oh-forest) 0%, #12302a 100%);
+  box-shadow: 4px 0 24px rgba(22, 56, 50, 0.12);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 40;
+}
+
+.oh-sidebar-logo {
+  transition: transform 0.3s var(--oh-ease), box-shadow 0.3s ease;
+}
+
+.oh-sidebar-logo:hover {
+  transform: rotate(-8deg) scale(1.05);
+  box-shadow: 0 0 0 6px rgba(201, 164, 100, 0.12);
+}
+
+.oh-sidebar-item {
+  position: relative;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s var(--oh-ease);
+}
+
+.oh-sidebar-item:hover:not(.disabled):not(.active) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--oh-white);
+}
+
+.oh-sidebar-item:active:not(.disabled) {
+  transform: scale(0.94);
+}
+
+.oh-sidebar-item.active {
+  background: rgba(201, 164, 100, 0.16);
+  color: var(--oh-gold);
+  box-shadow: inset 0 0 0 1px rgba(201, 164, 100, 0.3);
+}
+
+/* Gold marker on the edge of the current page. */
+.oh-sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--oh-gold);
+}
+
+/* Label on hover, straight away (from the item's existing title). */
+.oh-sidebar-item[title]::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translate(-4px, -50%);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--oh-shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s var(--oh-ease);
+  z-index: 100;
+}
+
+.oh-sidebar-item[title]:hover::after,
+.oh-sidebar-item[title]:focus-visible::after {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* ---------- Phone / tablet bars ---------- */
+.oh-mobile-topbar {
+  box-shadow: 0 6px 20px rgba(22, 56, 50, 0.18);
+}
+
+.oh-bottom-nav {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(1.4) blur(14px);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  box-shadow: 0 -10px 30px rgba(22, 56, 50, 0.1);
+}
+
+.oh-nav-item:active {
+  transform: scale(0.94);
+}
+
+/* ---------- Page headers ---------- */
+.oh-admin-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.oh-admin-subtitle {
+  font-size: 0.88rem;
+}
+
+.oh-admin-header {
+  margin-bottom: 22px;
+}
+
+@media (max-width: 600px) {
+  .oh-admin-title {
+    font-size: 1.35rem;
+  }
+
+  .oh-header-actions {
+    width: 100%;
+  }
+
+  .oh-header-actions > * {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* ---------- Tabs: a segmented control (like the history filter chips) ---------- */
+.oh-tabs {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 22px;
+  border: 1px solid var(--oh-border);
+  border-radius: 14px;
+  background: var(--oh-white);
+  box-shadow: var(--oh-shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.oh-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.oh-tabs .oh-tab {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-size: 0.88rem;
+  color: var(--oh-text-muted);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.oh-tabs .oh-tab:hover:not(.active) {
+  background: var(--oh-hover);
+  color: var(--oh-text);
+}
+
+.oh-tabs .oh-tab.active {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  box-shadow: 0 4px 12px rgba(22, 56, 50, 0.2);
+}
+
+/* ---------- Buttons ---------- */
+.oh-btn-add,
+.oh-btn-export,
+.oh-btn-save,
+.oh-btn-cancel,
+.oh-btn-generate,
+.oh-btn-edit,
+.oh-btn-block,
+.oh-btn-unblock,
+.oh-btn-logout,
+.oh-history-view {
+  transition: transform 0.15s var(--oh-ease), box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, filter 0.15s ease;
+}
+
+.oh-btn-add,
+.oh-btn-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 12px;
+  padding: 11px 20px;
+}
+
+.oh-btn-add {
+  box-shadow: 0 6px 16px rgba(91, 62, 133, 0.28);
+}
+
+.oh-btn-export,
+.oh-btn-save,
+.oh-btn-generate {
+  box-shadow: 0 6px 16px rgba(22, 56, 50, 0.22);
+}
+
+.oh-btn-add:hover:not(:disabled),
+.oh-btn-export:hover:not(:disabled),
+.oh-btn-save:hover:not(:disabled),
+.oh-btn-generate:hover:not(:disabled),
+.oh-history-view:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.oh-btn-add:active:not(:disabled),
+.oh-btn-export:active:not(:disabled),
+.oh-btn-save:active:not(:disabled),
+.oh-btn-generate:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.oh-btn-save,
+.oh-btn-cancel,
+.oh-btn-generate {
+  border-radius: 12px;
+}
+
+.oh-btn-cancel:hover:not(:disabled) {
+  border-color: var(--oh-forest);
+  background: var(--oh-hover);
+}
+
+.oh-btn-generate:disabled {
+  box-shadow: none;
+}
+
+/* Row actions (Users / Admins): quiet, equal buttons; Edit is the main one, Block stays red. */
+.oh-user-actions {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.oh-user-actions .oh-btn-cancel,
+.oh-user-actions .oh-btn-edit,
+.oh-user-actions .oh-btn-block,
+.oh-user-actions .oh-btn-unblock {
+  flex: none;
+  padding: 8px 14px;
+  border: 1px solid var(--oh-border);
+  border-radius: 10px;
+  background: var(--oh-white);
+  color: var(--oh-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.oh-user-actions .oh-btn-cancel:hover:not(:disabled) {
+  border-color: var(--oh-forest);
+  color: var(--oh-forest);
+  background: var(--oh-hover);
+}
+
+.oh-user-actions .oh-btn-edit {
+  border-color: #f6d3a7;
+  background: #fef3e2;
+  color: var(--oh-badge-distributor-text);
+}
+
+.oh-user-actions .oh-btn-edit:hover:not(:disabled) {
+  border-color: var(--oh-orange);
+  background: var(--oh-orange);
+  color: var(--oh-white);
+}
+
+.oh-user-actions .oh-btn-block {
+  border-color: #f5c9c9;
+  color: var(--oh-red);
+}
+
+.oh-user-actions .oh-btn-block:hover:not(:disabled) {
+  border-color: var(--oh-red);
+  background: var(--oh-red-bg);
+}
+
+.oh-user-actions .oh-btn-unblock {
+  border-color: #b9d6ca;
+  color: var(--oh-forest);
+}
+
+.oh-user-actions .oh-btn-unblock:hover:not(:disabled) {
+  border-color: var(--oh-forest);
+  background: var(--oh-badge-farmer-bg);
+}
+
+/* ---------- Inputs ---------- */
+.oh-search-input {
+  padding-left: 42px;
+  border-radius: 12px;
+  background: var(--oh-white)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m16 16 4 4'/%3E%3C/svg%3E")
+    no-repeat 14px center / 18px;
+  box-shadow: var(--oh-shadow-sm);
+}
+
+.oh-status-select {
+  border-radius: 12px;
+  box-shadow: var(--oh-shadow-sm);
+  cursor: pointer;
+}
+
+.oh-search-input,
+.oh-status-select,
+.oh-field input,
+.oh-field select,
+.oh-field textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.oh-field input,
+.oh-field select {
+  border-radius: 10px;
+}
+
+.oh-search-input:hover,
+.oh-status-select:hover,
+.oh-field input:hover:not(:focus),
+.oh-field select:hover:not(:focus) {
+  border-color: #dccbaf;
+}
+
+.oh-search-input:focus,
+.oh-status-select:focus,
+.oh-field input:focus,
+.oh-field select:focus,
+.oh-field textarea:focus {
+  outline: none;
+  border-color: var(--oh-forest);
+  box-shadow: var(--oh-ring);
+}
+
+.oh-field input:focus,
+.oh-field select:focus {
+  background: var(--oh-white);
+}
+
+/* ---------- Panels and cards: one radius, border and shadow everywhere ---------- */
+.oh-users-panel,
+.oh-qr-form,
+.oh-profile-card {
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-panel-radius);
+  box-shadow: var(--oh-shadow);
+}
+
+.oh-users-panel {
+  overflow: hidden;
+  padding: 0;
+}
+
+.oh-user-row {
+  padding: 16px 20px;
+  transition: background 0.15s ease;
+}
+
+.oh-user-row:hover {
+  background: #fcf8f1;
+}
+
+.oh-user-avatar {
+  box-shadow: 0 0 0 3px var(--oh-white), 0 0 0 4px var(--oh-border);
+}
+
+/* Folder cards lift on hover, like the dashboard's cards. */
+.oh-folder-grid {
+  gap: 16px;
+}
+
+.oh-folder-card {
+  border-width: 1px;
+  border-radius: 16px;
+  transition: transform 0.2s var(--oh-ease), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.oh-folder-card:not(:disabled):hover {
+  transform: translateY(-3px);
+  border-color: rgba(201, 164, 100, 0.6);
+  box-shadow: var(--oh-shadow-lg);
+}
+
+.oh-folder-card-new:hover {
+  background: var(--oh-white);
+}
+
+/* ---------- Scan home ---------- */
+.oh-home-hero {
+  background:
+    radial-gradient(circle at 92% -10%, rgba(201, 164, 100, 0.28), transparent 42%),
+    radial-gradient(circle at -5% 120%, rgba(31, 143, 95, 0.3), transparent 45%),
+    linear-gradient(135deg, var(--oh-forest) 0%, var(--oh-forest-light) 100%);
+  box-shadow: 0 18px 40px rgba(22, 56, 50, 0.22);
+}
+
+.oh-home-stat {
+  transition: transform 0.2s var(--oh-ease), box-shadow 0.2s ease;
+}
+
+.oh-home-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(22, 56, 50, 0.12);
+}
+
+/* ---------- Errors / empty states ---------- */
+.oh-error {
+  border: 1px solid #f5c9c9;
+  border-radius: 12px;
+}
+
+.oh-empty-state {
+  color: var(--oh-text-muted);
+}
+
+/* ---------- Gentle entrance for page content ---------- */
+/* Opacity only: a transform here would re-anchor the pages' fixed pop-ups (dialogs, panels). */
+@keyframes oh-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.oh-admin-main > div {
+  animation: oh-fade-in 0.3s ease-out;
+}
+
+/* ---------- Wallet bar on phones: buttons wrap, Add balance gets its own full row ---------- */
+@media (max-width: 560px) {
+  .oh-wallet-bar-actions {
+    flex-wrap: wrap;
+  }
+
+  .oh-wallet-bar-actions .oh-wallet-ghost {
+    flex: 1 1 0;
+  }
+
+  .oh-wallet-bar-actions .oh-wallet-primary {
+    flex: 1 1 100%;
+  }
+}
+
+/* Small phones: three tabs fit on one line without scrolling. */
+@media (max-width: 420px) {
+  .oh-tabs .oh-tab {
+    padding: 8px 11px;
+    font-size: 0.82rem;
+  }
+}
