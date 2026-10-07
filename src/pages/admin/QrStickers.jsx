@@ -17,7 +17,13 @@ import {
   setBatchNoFilter,
   clearLastResult,
 } from '../../store/qrStickerSlice';
+import { fetchWallet, quoteStickers } from '../../store/walletSlice';
+import { AddBalanceModal, WalletActivityModal, WalletBar } from '../../components/Wallet.jsx';
+import { PlansTab } from '../../components/Plans.jsx';
+import { formatINR } from '../../utils/money';
 import '../../styles/admin.css';
+import '../../styles/wallet.css';
+import '../../styles/plans.css';
 
 const SPLIT_TYPES = [
   { value: 'vertical-50-50', label: 'Vertical 50:50' },
@@ -180,10 +186,11 @@ const StickerPreview = ({ form }) => {
   );
 };
 
-const GenerateTab = () => {
+const GenerateTab = ({ onAddBalance, onActivity, onShowPlans }) => {
   const dispatch = useDispatch();
   const { folders } = useSelector((s) => s.imageStock);
   const { generating, generateError, lastResult } = useSelector((s) => s.qrSticker);
+  const wallet = useSelector((s) => s.wallet);
 
   const [form, setForm] = useState({
     producer: '',
@@ -275,6 +282,15 @@ const GenerateTab = () => {
 
   const summary = layoutSummary(form.splitType, form.pageSize, form.numberOfQrs);
 
+  // Stickers are paid from the wallet once billing is on (the server checks again when generating).
+  const billing = wallet.enabled && wallet.status === 'ready';
+  const stickerCount = Math.max(0, Math.trunc(Number(form.numberOfQrs)) || 0);
+  // The plan's monthly allowance is used first; the rest is charged from the wallet.
+  const quote = quoteStickers(stickerCount, wallet);
+  const costPaise = quote.totalPaise;
+  const shortfallPaise = billing ? Math.max(0, costPaise - wallet.balancePaise) : 0;
+  const activePlan = wallet.plan?.status === 'ACTIVE' ? wallet.plan : null;
+
   if (lastResult) {
     return (
       <div className="oh-qr-success">
@@ -299,6 +315,15 @@ const GenerateTab = () => {
             return `${perPage} stickers per ${lastResult.batch.pageSize || 'A4'} page, each ${size}.`;
           })()}
         </p>
+        {lastResult.wallet && (
+          <p className="oh-qr-success-charge">
+            {lastResult.wallet.coveredCount > 0 && `${lastResult.wallet.coveredCount} covered by your plan · `}
+            {formatINR(lastResult.wallet.chargedPaise)} charged to your wallet · balance{' '}
+            <b>{formatINR(lastResult.wallet.balancePaise)}</b>
+            {lastResult.wallet.plan?.status === 'ACTIVE' &&
+              ` · ${lastResult.wallet.plan.remaining.toLocaleString('en-IN')} plan QR codes left this month`}
+          </p>
+        )}
       </div>
     );
   }
@@ -308,6 +333,8 @@ const GenerateTab = () => {
       <p className="oh-admin-subtitle" style={{ marginBottom: 18 }}>
         Fill the details — the sticker preview updates live
       </p>
+
+      {wallet.enabled && <WalletBar onAdd={() => onAddBalance(0)} onActivity={onActivity} onPlans={onShowPlans} />}
 
       {generateError && <div className="oh-error">{generateError}</div>}
 
@@ -396,10 +423,50 @@ const GenerateTab = () => {
             </div>
           </div>
 
+          {billing && stickerCount > 0 && (
+            <div className={`oh-qr-cost ${shortfallPaise ? 'short' : ''}`} aria-live="polite">
+              <div className="oh-qr-cost-row">
+                <span>
+                  {quote.coveredCount > 0 && quote.extraCount === 0
+                    ? `${stickerCount} ${stickerCount === 1 ? 'sticker' : 'stickers'} · covered by your plan`
+                    : quote.coveredCount > 0
+                      ? `${quote.coveredCount} from your plan + ${quote.extraCount} × ${formatINR(quote.extraPricePaise)}`
+                      : `${stickerCount} ${stickerCount === 1 ? 'sticker' : 'stickers'} × ${formatINR(quote.extraPricePaise)}`}
+                </span>
+                <strong>{formatINR(costPaise)}</strong>
+              </div>
+              {activePlan && (
+                <div className="oh-qr-cost-row muted">
+                  <span>Plan QR codes left this month after this batch</span>
+                  <span>
+                    {(activePlan.remaining - quote.coveredCount).toLocaleString('en-IN')} of{' '}
+                    {activePlan.monthlyQuota.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              )}
+              {shortfallPaise ? (
+                <div className="oh-qr-cost-row short">
+                  <span>
+                    Your balance is {formatINR(wallet.balancePaise)} — add <b>{formatINR(shortfallPaise)}</b> more to
+                    generate this batch.
+                  </span>
+                  <button type="button" className="oh-qr-cost-add" onClick={() => onAddBalance(shortfallPaise)}>
+                    Add balance
+                  </button>
+                </div>
+              ) : (
+                <div className="oh-qr-cost-row muted">
+                  <span>Balance after generating</span>
+                  <span>{formatINR(wallet.balancePaise - costPaise)}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           <button
             type="submit"
             className="oh-btn-generate"
-            disabled={generating || checking || !form.folderId || Boolean(batchNoError)}
+            disabled={generating || checking || !form.folderId || Boolean(batchNoError) || shortfallPaise > 0}
           >
             {generating ? (
               <>
@@ -412,7 +479,7 @@ const GenerateTab = () => {
                 Checking batch no…
               </>
             ) : (
-              `⊞ Generate ${form.numberOfQrs || 0} stickers`
+              `⊞ Generate ${form.numberOfQrs || 0} stickers${billing && stickerCount ? ` · ${formatINR(costPaise)}` : ''}`
             )}
           </button>
         </form>
@@ -558,7 +625,19 @@ const HistoryTab = () => {
 };
 
 const QrStickers = () => {
+  const dispatch = useDispatch();
+  const wallet = useSelector((s) => s.wallet);
   const [tab, setTab] = useState('generate');
+  const [addBalance, setAddBalance] = useState(null); // { suggestedPaise } while the dialog is open
+  const [activityOpen, setActivityOpen] = useState(false);
+  // Known from the last visit (see walletSlice), so the tab is there immediately on a reload.
+  const billing = wallet.enabled;
+
+  useEffect(() => {
+    dispatch(fetchWallet());
+  }, [dispatch]);
+
+  const openAddBalance = (suggestedPaise = 0) => setAddBalance({ suggestedPaise });
 
   return (
     <div>
@@ -572,12 +651,24 @@ const QrStickers = () => {
         <button type="button" className={`oh-tab ${tab === 'generate' ? 'active' : ''}`} onClick={() => setTab('generate')}>
           Generate
         </button>
+        {billing && (
+          <button type="button" className={`oh-tab ${tab === 'plans' ? 'active' : ''}`} onClick={() => setTab('plans')}>
+            Plans &amp; pricing
+          </button>
+        )}
         <button type="button" className={`oh-tab ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>
           Generated QRs
         </button>
       </div>
 
-      {tab === 'generate' ? <GenerateTab /> : <HistoryTab />}
+      {tab === 'generate' && (
+        <GenerateTab onAddBalance={openAddBalance} onActivity={() => setActivityOpen(true)} onShowPlans={() => setTab('plans')} />
+      )}
+      {tab === 'plans' && billing && <PlansTab onAddBalance={openAddBalance} />}
+      {tab === 'history' && <HistoryTab />}
+
+      {addBalance && <AddBalanceModal suggestedPaise={addBalance.suggestedPaise} onClose={() => setAddBalance(null)} />}
+      {activityOpen && <WalletActivityModal onClose={() => setActivityOpen(false)} />}
     </div>
   );
 };

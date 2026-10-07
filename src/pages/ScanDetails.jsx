@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../api/axios';
 import ReportPhoto from '../components/ReportPhoto.jsx';
+import StickerMedia from '../components/StickerMedia.jsx';
 import { LoadingState } from '../components/Loader.jsx';
 import JourneySection, { hasPlaceNames, productLine } from '../components/JourneySection.jsx';
 import {
@@ -114,18 +115,54 @@ const ScanDetails = () => {
   };
 
   const variant = data && (VARIANTS[data.scan.result] || NOT_VERIFIED);
+  const showStickerByIds = Boolean(data?.sticker) && data.scan.result !== 'SCANNED';
+
+  // The sticker as an image (QR + code, and its photo where this viewer may see it), made by the
+  // server. Fetched as soon as the scan loads: browsers only allow sharing right after a click, so
+  // it has to be ready before the Share button is pressed.
+  const [shareFile, setShareFile] = useState(null);
+  useEffect(() => {
+    setShareFile(null);
+    if (!data?.sticker) return undefined;
+    let cancelled = false;
+    api
+      .get(`/scans/${id}/share-card`, { responseType: 'blob' })
+      .then(({ data: blob }) => {
+        if (!cancelled) setShareFile(new File([blob], `${data.sticker.code}-originhash.png`, { type: 'image/png' }));
+      })
+      .catch(() => {}); // sharing then falls back to text only
+    return () => {
+      cancelled = true;
+    };
+  }, [id, data]);
+
+  const flashNote = (note) => {
+    setShareNote(note);
+    setTimeout(() => setShareNote(''), 2500);
+  };
 
   const share = async () => {
     const { scan, product } = data;
     const what = variant.pill || variant.heading || 'Recorded scan';
-    const text = `${what}: ${product ? productLine(product) : 'Unknown product'}${scan.code ? ` (${scan.code})` : ''}, ${formatDateTimeShort(scan.createdAt)}. OriginHash scan ID ${scan.uuid}.`;
+    const code = product?.code || scan.code;
+    const text = `${what}: ${product ? productLine(product) : 'Unknown product'}${code ? ` (${code})` : ''}, ${formatDateTimeShort(scan.createdAt)}. OriginHash scan ID ${scan.uuid}.`;
     try {
-      if (navigator.share) {
+      if (shareFile && navigator.canShare?.({ files: [shareFile] })) {
+        await navigator.share({ title: 'OriginHash', text, files: [shareFile] });
+      } else if (navigator.share && !shareFile) {
         await navigator.share({ title: 'OriginHash', text });
       } else {
-        await navigator.clipboard.writeText(text);
-        setShareNote('Details copied');
-        setTimeout(() => setShareNote(''), 2000);
+        // No file sharing here (e.g. some desktop browsers): save the image and copy the details.
+        if (shareFile) {
+          const url = URL.createObjectURL(shareFile);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = shareFile.name;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+        await navigator.clipboard?.writeText(text).catch(() => {});
+        flashNote(shareFile ? 'Sticker image downloaded · details copied' : 'Details copied');
       }
     } catch {
       // Share sheet dismissed, or clipboard blocked — nothing to do.
@@ -168,16 +205,20 @@ const ScanDetails = () => {
 
           {status === 'ready' && (
             <>
-              <dl className="oh-details-ids">
-                <div>
-                  <dt>Scan ID</dt>
-                  <dd>{data.scan.uuid ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt>QR ID</dt>
-                  <dd>{data.scan.qrCodeUuid ?? '—'}</dd>
-                </div>
-              </dl>
+              {/* Record scans show the sticker in the product card; verifications show it beside the IDs. */}
+              <div className={`oh-details-ids-card ${showStickerByIds ? 'with-media' : ''}`}>
+                <dl className="oh-details-ids">
+                  <div>
+                    <dt>Scan ID</dt>
+                    <dd>{data.scan.uuid ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>QR ID</dt>
+                    <dd>{data.scan.qrCodeUuid ?? '—'}</dd>
+                  </div>
+                </dl>
+                {showStickerByIds && <StickerMedia sticker={data.sticker} />}
+              </div>
               <p className="oh-details-footnote">
                 This record confirms the {data.scan.action === 'record' ? 'scan' : 'verification'} carried out by
                 OriginHash and cannot be edited.
@@ -207,6 +248,7 @@ const VerifyDetails = ({ data, variant }) => {
           <>
             <Row label="Product">{productLine(product)}</Row>
             <Row label="Producer">{product.producer}</Row>
+            {product.code && <Row label="Sticker code">{product.code}</Row>}
           </>
         ) : (
           scan.code && <Row label="Code scanned">{scan.code}</Row>

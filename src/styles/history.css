@@ -430,6 +430,136 @@
   color: var(--oh-text);
 }
 
+/* Scan details: the IDs card, with the sticker beside it on verifications. */
+.oh-details-ids-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 18px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--oh-white);
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-md);
+}
+
+.oh-details-ids-card .oh-details-ids {
+  flex: 1 1 260px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.oh-details-ids-card .oh-details-ids dd {
+  overflow-wrap: anywhere;
+}
+
+.oh-details-product.with-media {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 18px;
+}
+
+.oh-details-product-info {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+/* The sticker's QR and (where allowed) image: equal squares, like the printed sticker. */
+.oh-sticker-media {
+  --tile: 112px;
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.oh-sticker-tile {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.oh-sticker-tile a {
+  display: block;
+  width: var(--tile);
+  height: var(--tile);
+  border-radius: 12px;
+  border: 1px solid var(--oh-border);
+  background: var(--oh-white);
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.oh-sticker-tile a:hover {
+  box-shadow: 0 6px 16px rgba(22, 56, 50, 0.14);
+  transform: translateY(-1px);
+}
+
+.oh-sticker-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.oh-sticker-tile:not(.photo) img {
+  padding: 6px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.oh-sticker-tile.photo a {
+  cursor: zoom-in;
+  background: #f1e8d6;
+}
+
+.oh-sticker-tile.photo img {
+  object-fit: cover;
+}
+
+.oh-sticker-tile figcaption .oh-sticker-code {
+  display: block;
+  margin-top: 2px;
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--oh-text);
+}
+
+.oh-sticker-tile figcaption {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--oh-text-muted);
+}
+
+/* Narrow phones: the sticker drops below the text, centred, tiles sharing the width. */
+@media (max-width: 480px) {
+  .oh-details-product.with-media .oh-sticker-media,
+  .oh-details-ids-card.with-media .oh-sticker-media {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .oh-sticker-media.pair {
+    --tile: min(132px, calc((100vw - 120px) / 2));
+  }
+
+  .oh-sticker-media:not(.pair) {
+    --tile: 132px;
+  }
+}
+
 .oh-details-footnote {
   margin: 16px 0 0;
   text-align: center;

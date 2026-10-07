@@ -1,0 +1,867 @@
+/* ==========================================================================
+   Plans & pricing (Pay As You Go · Subscription · Fixed + Variable)
+   Card tones come from the palette: orange, the retailer blue, and green.
+   ========================================================================== */
+
+.oh-plans {
+  --payg: var(--oh-orange-dark);
+  --payg-soft: #fff4ea;
+  --payg-tint: #fde3cc;
+  --sub: var(--oh-badge-retailer-text);
+  --sub-soft: #f2f6ff;
+  --sub-tint: var(--oh-badge-retailer-bg);
+  --fixed: var(--oh-green);
+  --fixed-soft: #f0faf4;
+  --fixed-tint: var(--oh-badge-farmer-bg);
+}
+
+.oh-plans .tone-payg { --tone: var(--payg); --tone-soft: var(--payg-soft); --tone-tint: var(--payg-tint); }
+.oh-plans .tone-sub { --tone: var(--sub); --tone-soft: var(--sub-soft); --tone-tint: var(--sub-tint); }
+.oh-plans .tone-fixed { --tone: var(--fixed); --tone-soft: var(--fixed-soft); --tone-tint: var(--fixed-tint); }
+
+/* ---------- Header ---------- */
+.oh-plans-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin-bottom: 18px;
+}
+
+.oh-plans-head h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--oh-forest);
+}
+
+.oh-plans-head p {
+  margin: 4px 0 0;
+  max-width: 560px;
+  font-size: 0.88rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-segment {
+  display: inline-flex;
+  padding: 4px;
+  border: 1.5px solid var(--oh-border);
+  border-radius: 12px;
+  background: var(--oh-white);
+}
+
+.oh-segment button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--oh-text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.oh-segment button.active {
+  background: var(--oh-forest);
+  color: var(--oh-white);
+}
+
+.oh-plans-save {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.oh-plans-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 11px 14px;
+  border-radius: var(--oh-radius-sm);
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.oh-plans-notice button {
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* ---------- Current plan ---------- */
+.oh-plan-current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border: 1px solid var(--oh-border);
+  border-left: 4px solid var(--oh-forest);
+  border-radius: var(--oh-radius-md);
+  background: var(--oh-white);
+  box-shadow: var(--oh-shadow);
+}
+
+.oh-plan-current.paused {
+  border-left-color: var(--oh-orange);
+  background: #fffaf4;
+}
+
+.oh-plan-current-main {
+  flex: 1 1 380px;
+  min-width: 0;
+}
+
+.oh-plan-current h3 {
+  margin-top: 8px;
+  font-size: 1.05rem;
+  color: var(--oh-forest);
+}
+
+.oh-plan-current p {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-plan-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--oh-badge-farmer-bg);
+  color: var(--oh-badge-farmer-text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.oh-plan-pill.paused {
+  background: var(--oh-badge-changed-bg);
+  color: var(--oh-badge-changed-text);
+}
+
+.oh-plan-meter {
+  height: 8px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: #efe7da;
+  overflow: hidden;
+}
+
+.oh-plan-meter span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--oh-forest);
+  transition: width 0.4s ease;
+}
+
+.oh-plan-current .oh-plan-meter-text b {
+  color: var(--oh-text);
+}
+
+.oh-plan-current .oh-plan-scheduled {
+  color: var(--oh-text);
+}
+
+.oh-plan-current .oh-plan-warning {
+  color: #9a3412;
+  font-weight: 600;
+}
+
+.oh-plan-current-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.oh-plan-btn {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.oh-plan-btn.primary {
+  border: none;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+}
+
+.oh-plan-btn.primary:hover:not(:disabled) {
+  background: var(--oh-forest-light);
+}
+
+.oh-plan-btn.ghost {
+  border: 1.5px solid var(--oh-border);
+  background: var(--oh-white);
+  color: var(--oh-text);
+}
+
+.oh-plan-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.oh-plan-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--oh-forest);
+  font-size: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ---------- Cards ---------- */
+.oh-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (max-width: 1180px) {
+  .oh-plans-grid {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+}
+
+.oh-plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  background: linear-gradient(180deg, var(--tone-soft) 0%, var(--oh-white) 55%);
+  box-shadow: var(--oh-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.oh-plan-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(22, 56, 50, 0.12);
+}
+
+.oh-plan-card.current {
+  border: 2px solid var(--tone);
+}
+
+.oh-plan-ribbon {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--tone);
+  color: var(--oh-white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.oh-plan-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--tone);
+  color: var(--oh-white);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--tone) 35%, transparent);
+}
+
+.oh-plan-card h3 {
+  margin-top: 14px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--oh-text);
+}
+
+.oh-plan-sub {
+  margin: 4px 0 16px;
+  font-size: 0.86rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-plan-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--oh-radius-md);
+  background: var(--oh-white);
+  border: 1px solid #f0e9dd;
+}
+
+.oh-plan-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--oh-text);
+}
+
+/* Quantity box with its range hint underneath. */
+.oh-plan-stepper-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  gap: 4px;
+}
+
+.oh-plan-quota-head .oh-plan-stepper-wrap {
+  align-self: auto;
+  align-items: flex-end;
+}
+
+.oh-plan-stepper-hint {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--oh-red);
+}
+
+.oh-plan-stepper.invalid {
+  border-color: var(--oh-red);
+}
+
+.oh-plan-stepper button {
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* Subscription's own Monthly / Yearly switch. */
+.oh-plan-cycle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.oh-segment.small {
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.oh-segment.small button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.oh-plans .tone-sub .oh-segment button.active {
+  background: var(--sub);
+}
+
+.oh-plan-stepper {
+  display: inline-flex;
+  align-self: center;
+  align-items: stretch;
+  border: 1.5px solid var(--oh-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--oh-white);
+}
+
+.oh-plan-stepper button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  border: none;
+  background: #f7f3ec;
+  color: var(--oh-text);
+}
+
+.oh-plan-stepper button:hover:not(:disabled) {
+  background: var(--tone-tint);
+  color: var(--tone);
+}
+
+.oh-plan-stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.oh-plan-stepper input {
+  width: 96px;
+  height: 44px;
+  border: none;
+  border-left: 1.5px solid var(--oh-border);
+  border-right: 1.5px solid var(--oh-border);
+  outline: none;
+  text-align: center;
+  font-family: var(--oh-font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--oh-text);
+}
+
+.oh-plan-quota-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.oh-plan-quota-head .oh-plan-stepper {
+  align-self: auto;
+}
+
+.oh-plan-quota-head .oh-plan-stepper input {
+  width: 84px;
+  height: 38px;
+  font-size: 1.05rem;
+}
+
+.oh-plan-quota-head .oh-plan-stepper button {
+  width: 36px;
+}
+
+/* Range slider filled up to the thumb in the card's tone. */
+.oh-plan-slider {
+  width: 100%;
+  height: 6px;
+  margin: 8px 0 0;
+  appearance: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--tone) var(--fill), #e6e0d4 var(--fill));
+  outline: none;
+  cursor: pointer;
+}
+
+.oh-plan-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--oh-white);
+  background: var(--tone);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.oh-plan-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid var(--oh-white);
+  background: var(--tone);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.oh-plan-slider:focus-visible::-webkit-slider-thumb {
+  outline: 3px solid var(--tone-tint);
+}
+
+.oh-plan-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -4px;
+  font-size: 0.72rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-plan-lines {
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--tone-soft);
+}
+
+.oh-plan-lines > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.86rem;
+  color: var(--oh-text);
+}
+
+.oh-plan-lines > div + div {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--tone) 18%, transparent);
+}
+
+.oh-plan-lines strong {
+  font-family: var(--oh-font-display);
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+.oh-plan-lines .total span {
+  font-weight: 700;
+}
+
+.oh-plan-lines .total strong {
+  font-size: 1.35rem;
+  color: var(--oh-text);
+}
+
+.oh-plan-lines s,
+.oh-plan-big s {
+  margin-right: 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--oh-text-muted);
+}
+
+.oh-plan-note {
+  margin: 8px 0 0;
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+  text-align: right;
+}
+
+.oh-plan-fixed-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.oh-plan-fixed-row > div:first-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.oh-plan-big {
+  padding: 8px 12px;
+  border: 1.5px solid var(--oh-border);
+  border-radius: 10px;
+  font-family: var(--oh-font-display);
+  font-size: 1.15rem;
+  color: var(--oh-text);
+}
+
+.oh-plan-includes {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--tone-tint);
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-plan-includes span:first-child {
+  font-weight: 700;
+  color: var(--oh-text);
+}
+
+.oh-plan-includes strong {
+  font-family: var(--oh-font-display);
+  font-size: 1.3rem;
+  color: var(--tone);
+}
+
+.oh-plan-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--tone);
+  color: var(--oh-white);
+  font-size: 0.98rem;
+  font-weight: 700;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.oh-plan-cta:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.oh-plan-cta:disabled {
+  background: var(--tone-tint);
+  color: var(--tone);
+  cursor: default;
+}
+
+.oh-plan-foot {
+  margin: 10px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--oh-text-muted);
+}
+
+/* ---------- Compare ---------- */
+.oh-plans-compare {
+  margin-top: 22px;
+  padding: 8px 18px 14px;
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  background: var(--oh-white);
+  box-shadow: var(--oh-shadow);
+  overflow-x: auto;
+}
+
+.oh-plans-compare table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: separate;
+  border-spacing: 10px 0;
+  font-size: 0.84rem;
+}
+
+.oh-plans-compare th,
+.oh-plans-compare td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1ebe0;
+  text-align: center;
+}
+
+.oh-plans-compare thead th {
+  border-radius: 10px 10px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.oh-plans-compare thead th:first-child,
+.oh-plans-compare tbody th {
+  text-align: left;
+  color: var(--oh-text);
+}
+
+.oh-plans-compare tbody th {
+  font-weight: 500;
+  color: var(--oh-text-muted);
+}
+
+.oh-plans-compare thead th.tone-payg,
+.oh-plans-compare thead th.tone-sub,
+.oh-plans-compare thead th.tone-fixed {
+  background: var(--tone-tint);
+  color: var(--tone);
+}
+
+.oh-plans-compare td.tone-payg,
+.oh-plans-compare td.tone-sub,
+.oh-plans-compare td.tone-fixed {
+  background: var(--tone-soft);
+  color: var(--oh-text);
+}
+
+.oh-plans-compare tbody tr:last-child th,
+.oh-plans-compare tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.oh-plans-yes {
+  display: inline-grid;
+  color: var(--tone);
+}
+
+.oh-plans-no {
+  display: inline-grid;
+  color: #c9c2b6;
+}
+
+/* ---------- How it works ---------- */
+.oh-plans-steps {
+  display: grid;
+  grid-template-columns: 1.1fr repeat(4, 1fr);
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid var(--oh-border);
+  border-radius: var(--oh-radius-lg);
+  background: var(--oh-white);
+}
+
+@media (max-width: 1100px) {
+  .oh-plans-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .oh-plans-steps-title {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .oh-plans-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+.oh-plans-steps-title h3 {
+  font-size: 1.15rem;
+  color: var(--oh-text);
+}
+
+.oh-plans-steps-title p {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--oh-text-muted);
+}
+
+.oh-plans-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.oh-plans-step-no {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--oh-forest);
+  color: var(--oh-white);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.oh-plans-step-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f1ebe0;
+  color: var(--oh-forest);
+}
+
+.oh-plans-step strong {
+  display: block;
+  font-size: 0.86rem;
+  color: var(--oh-text);
+}
+
+.oh-plans-step span {
+  font-size: 0.74rem;
+  color: var(--oh-text-muted);
+}
+
+/* ---------- Confirm dialog ---------- */
+.oh-plan-confirm-name {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--oh-cream);
+  font-weight: 700;
+  color: var(--oh-forest);
+}
+
+.oh-plan-confirm dl {
+  margin: 0 0 14px;
+}
+
+.oh-plan-confirm dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1ebe0;
+  font-size: 0.84rem;
+}
+
+.oh-plan-confirm dt {
+  color: var(--oh-text-muted);
+}
+
+.oh-plan-confirm dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  color: var(--oh-text);
+}
+
+.oh-plan-short {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid #f3c6a0;
+  border-radius: 10px;
+  background: #fff6ee;
+  font-size: 0.82rem;
+  color: #9a3412;
+}
+
+/* ---------- Plan chip in the wallet bar ---------- */
+.oh-wallet-plan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--oh-white);
+  text-align: left;
+  line-height: 1.25;
+}
+
+.oh-wallet-plan:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.oh-wallet-plan span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.oh-wallet-plan strong {
+  font-size: 0.9rem;
+}
+
+.oh-wallet-plan small {
+  font-size: 0.72rem;
+  color: var(--oh-gold);
+}
+
+.oh-wallet-plan.paused {
+  border-color: rgba(242, 166, 90, 0.6);
+}
+
+.oh-wallet-plan.paused span {
+  color: #f6c98f;
+}
+
+/* Tabs stay on one line on phones and scroll sideways if they don't fit. */
+.oh-tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.oh-tabs .oh-tab {
+  white-space: nowrap;
+  flex-shrink: 0;
+}

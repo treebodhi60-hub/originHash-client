@@ -41,7 +41,9 @@ export const generateBatch = createAsyncThunk(
       const { data } = await api.post('/qr-stickers/batches', payload);
       return data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Could not generate QR stickers.');
+      // 402 INSUFFICIENT_BALANCE also carries balancePaise / shortfallPaise (see walletSlice).
+      const body = err.response?.data || {};
+      return rejectWithValue({ ...body, message: body.message || 'Could not generate QR stickers.' });
     }
   }
 );
@@ -110,7 +112,7 @@ const qrStickerSlice = createSlice({
       })
       .addCase(generateBatch.rejected, (state, action) => {
         state.generating = false;
-        state.generateError = action.payload;
+        state.generateError = action.payload?.message || 'Could not generate QR stickers.';
       });
   },
 });

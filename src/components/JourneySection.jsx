@@ -1,4 +1,5 @@
 import { CheckIcon, MapIcon, PinIcon, UserIcon } from './ScanIcons.jsx';
+import StickerMedia from './StickerMedia.jsx';
 import { formatDateShort, formatDateTimeShort, formatPlace } from '../utils/format';
 
 const capitalize = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
@@ -17,7 +18,8 @@ const journeyMapUrl = (points) =>
 
 // The "Tracked" pill, product card and product journey timeline. `journeyScope` is 'all' for
 // admins and the batch's creator, 'own' for anyone else (the server only sends their own scans).
-const JourneySection = ({ product, journey, buyerVerifiedAt, journeyScope, scannedBy }) => {
+// `sticker` (scan details only) adds the sticker's QR — and image, where allowed — to the product card.
+const JourneySection = ({ product, journey, buyerVerifiedAt, journeyScope, scannedBy, sticker }) => {
   const located = journey.filter((step) => step.location).map((step) => step.location);
 
   return (
@@ -28,20 +30,23 @@ const JourneySection = ({ product, journey, buyerVerifiedAt, journeyScope, scann
       </span>
 
       {product && (
-        <div className="oh-details-product">
-          <div className="oh-details-product-name">{productLine(product)}</div>
-          <div className="oh-details-product-code">
-            {product.code} · Batch {product.batchNo}
-          </div>
-          <div className="oh-details-product-label">Producer</div>
-          <div className="oh-details-product-producer">{product.producer}</div>
-          {product.packedAt && <div className="oh-details-product-meta">Packed {formatDateShort(product.packedAt)}</div>}
-          {scannedBy && !scannedBy.isYou && (
-            <div className="oh-details-product-meta">
-              Scanned by {scannedBy.name || 'an unnamed user'}
-              {scannedBy.userType ? ` (${capitalize(scannedBy.userType)})` : ''}
+        <div className={`oh-details-product ${sticker ? 'with-media' : ''}`}>
+          <div className="oh-details-product-info">
+            <div className="oh-details-product-name">{productLine(product)}</div>
+            <div className="oh-details-product-code">
+              {product.code} · Batch {product.batchNo}
             </div>
-          )}
+            <div className="oh-details-product-label">Producer</div>
+            <div className="oh-details-product-producer">{product.producer}</div>
+            {product.packedAt && <div className="oh-details-product-meta">Packed {formatDateShort(product.packedAt)}</div>}
+            {scannedBy && !scannedBy.isYou && (
+              <div className="oh-details-product-meta">
+                Scanned by {scannedBy.name || 'an unnamed user'}
+                {scannedBy.userType ? ` (${capitalize(scannedBy.userType)})` : ''}
+              </div>
+            )}
+          </div>
+          <StickerMedia sticker={sticker} />
         </div>
       )}
 

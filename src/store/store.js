@@ -4,6 +4,7 @@ import usersReducer from './usersSlice';
 import adminsReducer from './adminsSlice';
 import imageStockReducer from './imageStockSlice';
 import qrStickerReducer from './qrStickerSlice';
+import walletReducer from './walletSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     admins: adminsReducer,
     imageStock: imageStockReducer,
     qrSticker: qrStickerReducer,
+    wallet: walletReducer,
   },
 });
